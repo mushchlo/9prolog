@@ -15,10 +15,6 @@
 *									*
 ************************************************************************/
 
-#if	apm
-#include <graphic.h>
-#endif
-
 #include <string.h>
 #include <setjmp.h>
 #include <stdlib.h>
@@ -297,10 +293,8 @@ void save()	/*  save current prolog state */
 	    ErrorMess = SysError();
 	    Event(IO_ERROR);
 	}
-#if	unix
 	chmod(AtomToFile(AtomP(Regs_X->v1ofcf)), 0755);
 	/* on 4.1 or 4.2, saved states are executable */
-#endif	unix
 }
 
 
@@ -2248,7 +2242,6 @@ resumeread:
 
 	case _expfilename_:	/* expand_file_name(Short, Full) */
 	    {
-#if	unix
 		extern char *expand_file();
 		register PTR p = rX->v1ofcf;
 
@@ -2258,10 +2251,6 @@ resumeread:
 		}
 		TRY(constarg(v2ofcf,
 		    (PTR)(lookup(expand_file(AtomP(p)->stofae))) ));
-#else  ~unix
-		ErrorMess = "! expand_file_name/2 not defined for this OS";
-		goto ERROR;
-#endif	unix
 	    }
 
 	case _exists_:		/* exists(File) */

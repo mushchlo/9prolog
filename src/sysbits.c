@@ -80,22 +80,9 @@
 #include <stdarg.h>
 #include "pl.h"
 
-#if	vms
-#   include stdio
-#   include ssdef
-#   include descrip
-#   include <types.h>
-#   include "times.h"
-#endif	vms
-#if	unix
 #   include <sys/types.h>
 #   include <sys/times.h>
 #   include <sys/stat.h>
-#endif	unix
-#if	apm
-#include <sys.types.h>
-#include <sys.times.h>
-#endif	apm
 
 #if	FOLD
 #define	TtyWidth	78
@@ -265,8 +252,6 @@ void SyntErrPos()
 
 	char BadFileSpec[] = "Invalid file specification";
 
-#if	unix
-
 #include <pwd.h>
 extern	struct passwd *getpwuid(), *getpwnam();
 extern	__uid_t	getuid();
@@ -332,16 +317,6 @@ char *expand_file(Fancy)
 	}
     }
 
-#else	!unix
-
-/*  It is possible to define something very like this for VMS  */
-/*  Poplog (from which I copied this idea) certainly does it.  */
-
-#   define	expand_file(x) x
-
-#endif	unix
-
-
 /*----------------------------------------------------------------------+
 |									|
 |			I/O proper					|
@@ -362,7 +337,6 @@ void InitIO()
 	set_file(STDERR, stderr, -1, 1, AtomP(0));
 	Input = STDIN; Output = STDOUT;
 	NewLine= FALSE;
-#if	unix
 	/*  We want to check for one of two things: I/O coming from
 	    the terminal, and I/O coming through pipes.  The latter
 	    case might arise when using "script".  There is no good
@@ -381,14 +355,7 @@ void InitIO()
 	{	
 	    struct stat statbuf;
 	    IsaTty = fstat(0, &statbuf) || statbuf.st_dev == 0;
-# ifdef	v7
-	    if (IsaTty) setbuf(stdout, NullS);
-# endif	v7
 	}
-#else  !unix
-	IsaTty = TRUE;
-	setbuf(stdout, NullS);
-#endif	unix
 #if	FOLD
 	TtyLeft = TtyWidth;
 #endif	FOLD
@@ -797,13 +764,8 @@ void Rename(oldname, newname)
     char *oldname, *newname;
     {
 	int r;
-#if	unix
 	if ((r = link(oldname, newname)) == 0 && (r = unlink(oldname)) != 0)
 	    unlink(newname);
-#else	!unix
-	ProError("! Rename missing from this CProlog\n");
-	r = -1;
-#endif	unix
 	if (r != 0) IOError();
     }
 
@@ -811,16 +773,7 @@ void Rename(oldname, newname)
 void Remove(title)
     char *title;
     {
-#if	unix | apm
 	if (unlink(title) != 0) IOError();
-#else	!unix
-#if	vms
-	if (delete(title) != 0) IOError();
-#else	!vms
-	ProError("! Remove missing from this CProlog\n");
-	IOError();
-#endif	vms
-#endif	unix
     }
 
 
@@ -832,14 +785,8 @@ void Remove(title)
 int ChDir(newdir)
     char *newdir;
     {
-#if	unix | apm
 	extern int chdir();
 	return chdir(newdir) == 0;
-#else	!unix
-	/* I don't know what to put here, so... */
-	ProError("! cd missing from this C-Prolog\n");
-	return FALSE;
-#endif	unix
     }
 
 
@@ -856,7 +803,6 @@ int ChDir(newdir)
 int CallShell(command)
     char *command;
     {
-#if	unix
 	int status = -1;		/* child's termination+exit status */
 	int child = fork();		/* child's process id */
 
@@ -892,31 +838,6 @@ int CallShell(command)
 	    signal(SIGINT, oldsig);
 	    return result;
 	}
-#else	!unix
-#if	vms
-	if (command == NullS) {
-	    return lib$spawn();
-	} else {
-	    struct dsc$descriptor_s s_d;
-
-	    s_d.dsc$w_length  = strlen(command),
-	    s_d.dsc$b_dtype   = DSC$K_DTYPE_T,
-	    s_d.dsc$b_class   = DSC$K_CLASS_S,
-	    s_d.dsc$a_pointer = command;
-	    return lib$spawn(&s_d);
-	}
-#else	!vms either
-#if	apm
-	if (command == NullS) {
-	    return TRUE;
-	} else {
-	    return system(command);
-	}
-#else	!apm either
-	return TRUE;
-#endif	apm
-#endif	vms
-#endif	unix
     }    
 
 
@@ -927,18 +848,7 @@ int CallShell(command)
 |									|
 +----------------------------------------------------------------------*/
 
-#if	perq | gec63 | vax
-#   define	DatAlign	65536
-#endif
-#if	orion
-#   define	DatAlign	4096
-#endif
-#if	apm
-#   define	DatAlign	4
-#endif
-#ifndef	DatAlign
-#   define	DatAlign	1024
-#endif
+#define	DatAlign	1024
 
 
 void CreateStacks()
@@ -976,11 +886,7 @@ void CreateStacks()
     where the more rational 50 Hz is used.  It is EXTREMELY unlikely for
     this number to change.
 */
-#if	apm
-#define Hz	50.0
-#else
 #define Hz	60.0
-#endif
 
 double CpuTime()
 {

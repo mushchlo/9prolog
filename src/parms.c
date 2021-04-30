@@ -90,27 +90,11 @@ char version_2[] = "1984 written by F.Pereira, L.Damas, L.Byrd and R.A.O'Keefe."
 char version_3[] = "2020 adapted to x64 by cprolog.com";
 
 char		/*  default file names */
-#if	unix
 		BootFile[] = "pl/init",
 		InitFile[] = "startup",
 		UserFile[] = "%s/.prolog",
 		SavedFmt[] = "/usr/lib/prolog/saved_states.d/%s";
 #define		UserHome     getenv("HOME")
-#else	~unix
-#if	vms
-		BootFile[] = "BOOT.PRO",
-		InitFile[] = "DR0:[PROLOG]STARTUP",
-		UserFile[] = "%sPROLOG.BIN",
-		SavedFmt[] = "DR0:[PROLOG]%s";
-#define 	UserHome     getenv("HOME")
-#else	~vms either
-		BootFile[] = "pl/init",
-		InitFile[] = "startup",
-		UserFile[] = "prolog.bin",
-		SavedFmt[] = "%s";
-#define		UserHome     NullS
-#endif	vms
-#endif	unix
 
 
  int numval(q)

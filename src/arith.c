@@ -438,17 +438,7 @@ int numcompare(op, t1, t2)
 |									|
 +----------------------------------------------------------------------*/
 
-#if	perq | orion | m68000
-#   define IEEE 1
-#endif
-
 typedef union Mixed {
-#if	IEEE | gec63 | apm
-	unsigned ProLong int asunsigned;
-#endif	IEEE | gec63 | apm
-#if	vax
-	struct {short loword, hiword;} aswords;
-#endif	vax
 	float	asfloat;
 	PTR	asPTR;
     }   Mixed;
@@ -460,20 +450,6 @@ PTR ConsFloat(f)
 	Mixed m;
 
 	m.asfloat = f;
-#if	m68000
-	m.asunsigned = ((m.asunsigned >> 3) & 0x1fffffff) | FLT0;
-	/* At least one M68k C compiler has a bug with unsigned>>n */
-#endif	m68000
-#if	(IEEE &~ m68000) | apm
-	m.asunsigned = (m.asunsigned >> 3) | FLT0;
-#endif	IEEE
-#if	gec63
-	m.asunsigned = (((m.asunsigned >> 3) | FLT0) &~ 255)
-		     | (m.asunsigned & 255);
-#endif	gec63
-#if	vax
-	m.aswords.hiword = ((m.aswords.hiword >> 3) & 0x1fff) | (FLT0>>16);
-#endif	vax
 	return m.asPTR;
     }
 
@@ -484,15 +460,6 @@ float XtrFloat(p)
 	Mixed m;
 
 	m.asPTR = p;
-#if	IEEE | apm
-	m.asunsigned <<= 3;
-#endif	IEEE | apm
-#if	gec63
-	m.asunsigned = ((m.asunsigned &~ 255) << 3) | (m.asunsigned & 255);
-#endif	gec63
-#if	vax
-	m.aswords.hiword <<= 3;
-#endif	vax
 	return m.asfloat;
     }
 

@@ -376,12 +376,7 @@ free(ptr)
 	release(ptr, ptr[-1]);
     }
 
-
-#if	vax & unix
-#   define ASM	1	/* Use the assembly code inserts in Vax/Unix */
-#else	!vax | !unix
-#   define ASM	0	/* but stick to C elsewhere */
-#endif	vax & unix
+#define ASM	0	/* but stick to C elsewhere */
 
 /*  This next routine used to declare char *loc.  I have changed  it  to
     PTR  *loc  so  that it will be about 4 times as fast on non VAX/UNIX
