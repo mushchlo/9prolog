@@ -131,10 +131,7 @@ extern int PrologEvent;
 
 const char *SysError()
     {
-//	extern int sys_nerr;		/* number of entries in */
-//	extern char *sys_errlist[];	/* system error message table */
-
-	return errno < sys_nerr ? sys_errlist[errno] : "Unknown Unix error";
+	return "Unknown Unix error";
     }
 
 
