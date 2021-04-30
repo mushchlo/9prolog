@@ -29,7 +29,7 @@ enum { ID = 1, UMINUS, NOT, EXP, LOG, LOG10, SQRT, SIN, COS, TAN, ASIN, ACOS, AT
 
 /*  Internal codes for the Binary operators:				*/
 
-enum { PLUS = 1, MINUS, TIMES, DIVIDE, MOD, AND, OR, LSHIFT, RSHIFT, IDIV, POW, ATAN2 }
+enum { PLUS = 1, MINUS, TIMES, DIVIDE, MOD, AND, OR, LSHIFT, RSHIFT, IDIV, POW, ATAN2 };
 
 /* Internal codes for the Comparison operators:				*/
 

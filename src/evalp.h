@@ -49,7 +49,7 @@
 
 /* 1 - 133 */
 
-enum { _and_ = 1, _hidden_call_, _user_call_,
+enum { _and_ = 1, _hidden_call_, _user_call_, _call_,
 		_cut_, _repeat_, _abort_, _call1_, _yes_,
 		_no_, _halt_, _break_, _break_start_, _break_end_,
 		_exit_break_, _user_exec_, _repply_, _fail_, _kcompare_,
@@ -62,7 +62,7 @@ enum { _and_ = 1, _hidden_call_, _user_call_,
 		_z1_assert_, _a1_assert_, _z2_assert_, _a2_assert_, _recordz_,
 		_recorda_, _assertr_, _instance_, _erase_, _erased_,
 		_clause_, _recorded_ = 62, _catom_ = 64,
-		_cfunctor = 66, _abolish_ = 68, _is_op_,
+		_cfunctor_ = 66, _abolish_ = 68, _is_op_,
 		_see_, _seeing_, _2seeing_, _seen_, _tell_,
 		_append_, _telling_, _2telling_, _told_, _close_,
 		_read_, _get0_, _get_, _skip_, _display_,
