@@ -1,0 +1,6 @@
+['cplog:all'].
+:-  save(startup),
+    (	exists('.prologrc') -> consult('.prologrc')
+    ;   true
+    ).
+halt.

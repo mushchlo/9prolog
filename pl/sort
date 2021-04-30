@@ -1,0 +1,135 @@
+%   File   : pl/sort
+%   Authors: David Warren, Fernando Pereira, R.A.O'Keefe
+%   Updated: 20 November 1983
+%   Purpose: sorting routines.
+
+%   Defines: keysort/2, length/2, merge/3, msort/2, sort/2.
+
+/*  The three sorting routines are all variations of merge-sort, done by
+    bisecting the list, sorting the nearly equal halves, and merging the
+    results.   The half-lists aren't actually constructed, the number of
+    elements is counted instead (which is why 'length' is in this file).
+    The Dec-10 version doesn't have msort built in (it can be found in a
+    library file -- ordsets), but it is a very convenient thing to have.
+    The Dec-10 version of this file had a lot of calls to $comprise, the
+    point of that was that by using mode declarations the compiler could
+    put more variables on the local stack instead of the global stack. I
+    have removed these in favour of clarity.  In the interests of space&
+    time saving I have replaced some of the arithmetic by plus and succ.
+    Those predicates are not available in Dec-10 Prolog, but are quite a
+    saving in C-Prolog.  Also in the interests of space saving, $compare
+    has been given a 4th argument to say which component to compare.  It
+    will compare Kel=Val as happily as it will  compare  Key-Val.   Most
+    significantly,  it  makes  a  space  saving  of 12% in sort, a space
+    saving of 18% in keysort, and a time saving of 10% in keysort.   The
+    time to sort 200 elements is sort: 7.1 sec, keysort: 6.2 sec, and my
+    new msort: 5.0 sec.  A rough figure is 4msec * N * lg(N).
+*/
+
+%   length of a list.
+
+length([], 0) :- !.
+length([_|L], N) :-
+	length(L, M),
+	succ(M, N).
+
+
+
+%   sort(Random, Ordered)
+%   do a merge sort on Random, eliminating duplicates.
+
+sort(L, R) :-
+	length(L, N),
+	$sort(N, L, _, R1),
+	R = R1.
+
+$sort(2, [X1,X2|L], L, R) :- !,
+	compare(Delta, X1, X2),
+	(   Delta = (<), !, R = [X1,X2]
+	;   Delta = (>), !, R = [X2,X1]
+	; /*Delta = (=) */  R = [X2]
+	).
+$sort(1, [X|L], L, [X]) :- !.
+$sort(0, L, L, []) :- !.
+$sort(N, L1, L3, R) :-
+	is(N1, //, N, 2),
+	plus(N1, N2, N),
+	$sort(N1, L1, L2, R1),
+	$sort(N2, L2, L3, R2),
+	$merge(R1, R2, R).
+
+$merge([], R, R) :- !.
+$merge(R, [], R) :- !.
+$merge(R1, R2, [X|R]) :-
+	$compare(Delta, R1, R2, 1),
+	(   Delta = (<), !, R1 = [X|R1a], $merge(R1a, R2, R)
+	;   Delta = (>), !, R2 = [X|R2a], $merge(R1, R2a, R)
+	;   /* = */ R1 = [X|R1a], R2 = [_|R2a], $merge(R1a, R2a, R)
+	).
+
+
+%   msort(Random, Ordered)
+%   sorts a random list and does not remove duplicates.
+
+msort(L, R) :-
+	length(L, N),
+	$msort(N, L, _, R1),
+	R = R1.
+
+$msort(2, [X1,X2|L], L, R) :- !,
+	compare(Delta, X1, X2),
+	(   Delta = (>), !, R = [X2,X1]
+	; /*Delta/= (>)*/   R = [X1,X2]
+	).
+$msort(1, [X|L], L, [X]) :- !.
+$msort(0, L, L, []) :- !.
+$msort(N, L1, L3, R) :-
+	is(N1, //, N, 2),
+	plus(N1, N2, N),
+	$msort(N1, L1, L2, R1),
+	$msort(N2, L2, L3, R2),
+	merge(R1, R2, R).
+
+merge([], R, R) :- !.
+merge(R, [], R) :- !.
+merge(R1, R2, [X|R]) :-
+	$compare(Delta, R1, R2, 1),
+	(   Delta = (>), R2 = [X|L], merge(R1, L, R)
+	;   /* = or < */ R1 = [X|L], merge(L, R2, R)
+	).
+
+
+%   keysort(Random, Ordered)
+%   sorts a random list of Key-Value pairs, and does not remove duplicates.
+
+keysort(L, R) :-
+	length(L, N),
+	$keysort(N, L, _, R1),
+	R = R1.
+
+$keysort(2, [X1,X2|L], L, R) :- !,
+	$compare(Delta, X1, X2, 1),
+	(   Delta = (>), !, R = [X2,X1]
+	; /*Delta/= (>)*/   R = [X1,X2]
+	).
+$keysort(1, [X|L], L, [X]) :- !.
+$keysort(0, L, L, []) :- !.
+$keysort(N, L1, L3, R) :-
+	is(N1, //, N, 2),
+	plus(N1, N2, N),
+	$keysort(N1, L1, L2, R1),
+	$keysort(N2, L2, L3, R2),
+	$keymerge(R1, R2, R).
+
+$keymerge([], R, R) :- !.
+$keymerge(R, [], R) :- !.
+$keymerge(R1, R2, [X|R]) :-
+	R1 = [X1|R1a],
+	R2 = [X2|R2a],
+	$compare(Delta, X1, X2, 1),
+	(   Delta = (>), !, X = X2, $keymerge(R1, R2a, R)
+	; /*Delta\= (>)*/   X = X1, $keymerge(R1a, R2, R)
+	).
+
+
+

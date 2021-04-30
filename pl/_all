@@ -1,0 +1,10 @@
+%   File   : cplog:all
+%   Author : Fernando Pereira
+%   Updated: 20 February 1984
+%   Purpose: Load all the current bits of the standard Prolog system.
+
+:- [
+	'pl/protect'			%  Lock things up
+].
+
+

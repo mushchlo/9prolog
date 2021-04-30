@@ -1,0 +1,120 @@
+%   File   : pl/lib
+%   Author : R.A.O'Keefe
+%   Updated: 20 February 1984
+%   Purpose: provide the PDP-11 Prolog lib(X) command.
+
+/*  The point of this command is to make it easy for people to load files
+    from a common library area.  It also lets you have multiple libraries.
+
+	lib(File)
+
+    reconsults a file, looking for it in each library until it is found.
+    If it can't find the file in the library, it tries the file name as
+    written.  If you want it to try other places, add your own clauses to
+
+	libdirectory(D)
+
+    which is a user-extensible table of places for the lib command to look.
+    If the argument D contains a ? sign, the file name will replace that ?.
+    Otherwise a / and the file name will be appended.
+
+	lib(File, FileFound)
+
+    looks for the file like lib/1, but tells you what file it found, and
+    leaves it to you to decide what to do with it.
+*/
+
+:- public
+	lib/1,			%  load a file
+	lib/2,			%  find a file
+	note_lib/1.		%  note public predicates of file
+
+
+%   lib(File)
+%   looks in all the likely places for File, and when it has found it,
+%   it reconsults the file.  Reconsult is used so that repeated lib(F)
+%   commands for the same F will have no ill effect.
+%   lib(Pred/Arity) uses the clauses left behind by note_lib to load
+%   file defining that predicate.
+
+lib(Symbol/Arity) :- !,
+	functor(Head, Symbol, Arity),
+	(   clause(Head, (Load,Head)), !, call(Load)
+	;   true	% it is already defined
+	).
+lib([File|Files]) :- !,
+	lib(File),
+	lib(Files).
+lib([]) :- !.
+lib(File) :-
+	lib(File, FileFound),
+	reconsult(FileFound).
+
+
+%   lib(File, Found)
+%   looks in all the likely places for File, and when it has
+%   found it, it returns the name of the file it Found.  The
+%   current directory is the last place checked.  If you want
+%   the current directory checked first, add libdirectory(.)
+%   at the front of the table.
+
+lib(File, FileFound) :-
+	$lib(File, F),
+	libdirectory(Directory),
+	$lib(Directory, D),
+	$lib(D, F, T),
+	name(FileFound, T),
+	exists(FileFound),
+	!.
+lib(File, File) :-
+	exists(File).
+
+
+$lib([C|S], [C|S]) :-
+	integer(C), !.
+$lib(Atomic, String) :-
+	name(Atomic, String).
+
+
+$lib([63|D], F, T) :-	!,	%   63 is "?"
+	$append(F, D, T).
+$lib([C|D], F, [C|T]) :-
+	$lib(D, F, T).
+$lib([], F, [58|F]).		%   58 is ":"
+
+
+libdirectory('cplog').
+
+
+%   note_lib(File)
+%   reads the first clause in the File, which should be a public declaration.
+%   If it is, it notes for each predicate mentioned in that declaration that
+%   the predicate may be defined by reconsulting the file.  Because note_lib
+%   calls lib/2, it will find /usr/lib/prolog/foo before it looks for ./foo.
+%   If you want note_lib to look at a file in the current directory, you'd
+%   better call note_lib('./foo'), or, since cd(.) exists, you'd better give
+%   the full path-name every time.
+
+note_lib(File) :-
+	lib(File, FileFound),
+	see(FileFound),
+	read(FirstClause),
+	seen,
+	FirstClause = (:- public Exports),
+	!,
+	note_lib(Exports, FileFound).
+note_lib(File) :-
+	write('! note_lib: '), write(File),
+	write(' is missing or lacks a :- public declaration.'),
+	nl.
+
+note_lib((A,B), File) :- !,
+	note_lib(A, File),
+	note_lib(B, File).
+note_lib(Symbol/Arity, File) :-
+	functor(Head, Symbol, Arity),
+	(   clause(Head, _)		%  it's already defined
+	;   assert((Head :- reconsult(File), Head))
+	),  !.
+
+

@@ -1,0 +1,104 @@
+/*  flag(Variable, OldValue, NewValue)
+
+    is an omnium-gatherum predicate used to replace a number of old system
+    predicates for switching miscellaneous things on and off.  It may also
+    be used for switching your own variables on and off as well.
+
+    The OldValue is unified with the current value of the Variable, then
+    the NewValue (which must be an arithmetic expression) is evaluated, and
+    assigned to the Variable.  This is not a very "logical" operation, I am
+    afraid, but there it is.
+
+    $flag/3 is the genuine primitive.
+*/
+
+flag(Char, Old, New) :-
+	integer(Char),
+	(   Char < 0
+	|   Char > 127
+	),  !,
+	$error('first argument is not an Ascii character', flag(Char,Old,New)).
+flag(Char, Old, New) :-
+	integer(Char), !,
+	$flag(Char, Old, New).
+flag(Flag, Old, New),
+	var(Flag), !,
+	$error('first argument is a variable', flag(Flag,Old,New)).
+flag(Flag, Old, New) :-
+	$flag(Flag, Code), !,
+	$flag(Code, Old, New).
+flag(User, Old, New) :-
+	clause(flag(User, Old), true, Ref),
+	Val is New, !,
+	asserta(flag(User, Val)),
+	erase(Ref).
+flag(Dud, Old, New) :-
+	$error('no flag/2 fact or bad new value', flag(Dud,Old,New)).
+
+
+%   table of system flags and their codes
+
+$flag(recons,		128).		%  consulting/reconsulting?
+$flag('LC',		129).		%  capitals start atoms/variables?
+$flag(fileerrors,	130).		%  file problems fail/error?
+$flag(unknown,		131).		%  undefined preds fail/error?
+$flag(trace,		132).		%  tracing/quiet?
+$flag(debug,		133).		%  debug info kept/discarded?
+$flag(leash,		134).		%  stop at which ports?
+$flag(all_float,	135).		%  force floating arithmetic?
+
+
+%   specialised predicates for compatibility with Dec-10 Prolog and older
+%   versions of C Prolog.
+
+trace :-
+	$flag(132, _, 1),
+	$flag(133, _, 1).
+
+
+'NOLC' :-
+	$flag(129, _, 0).
+'LC' :-
+	$flag(129, _, 1).
+
+
+fileerrors :-
+	$flag(130, _, 0).
+nofileerrors :-
+	$flag(130, _, 1).
+
+
+all_float(X, Y) :-
+	$flag(135, X0, X0),
+	$flag_code(X0, all_float, X),
+	nonvar(Y),
+	$flag_code(Y0, all_float, Y),
+	$flag(135, X0, Y0).
+
+
+unknown(X, Y) :-
+	$flag(131, X0, X0),
+	$flag_code(X0, unknown, X),
+	nonvar(Y),
+	$flag_code(Y0, unknown, Y),
+	$flag(131, X0, Y0).
+
+
+$flag_code(1, all_float,  on).
+$flag_code(0, all_float, off).
+$flag_code(1, unknown, trace).
+$flag_code(0, unknown,  fail).
+
+
+%   temporary predicates to be unfolded in-line
+
+$leash(P, N) :-
+	$flag(134, P, N).
+
+$debug(P, N) :-
+	$flag(133, P, N).
+
+$recons(X) :-
+	$flag(128, _, X).
+
+

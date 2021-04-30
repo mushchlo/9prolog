@@ -1,0 +1,38 @@
+/*  File   : pl/tty
+    Author : R.A.O'Keefe
+    Updated: 17 September 83, 1983
+    Purpose: define the tty* predicates for Dec-10 compatability
+		NB: display does NOT switch to the terminal!
+
+    A particularly nasty thing to watch out for here is that we
+    can't afford to fail between the time we switch to 'user' and
+    the time we switch back.  Hence the 'is's.  I had put these
+    predicates in Prolog before Fernando put them into his C version.
+    I have left them in Prolog because they are almost never used.
+    Any time they are used, the dominant cost is likely to be I/O.
+
+    ttyflush used to be here.  It is now in C so that people can send
+    control sequences to /dev/tty without fear of line folding, but
+    can then force the buffered output out.  As a hack, ttyflush(X)
+    is equivalent to fflush(X) in C for any output file X.
+*/
+
+ttytab(Spaces) :-
+	N is Spaces, telling(Old, user), tab(N), tell(Old).
+
+ttyput(Char) :-
+	C is Char, telling(Old, user), put(C), tell(Old).
+
+ttynl :-
+	telling(Old, user), nl, tell(Old).
+
+ttyget0(Char) :-
+	seeing(Old, user), get0(C), see(Old), Char = C.
+
+ttyget(Char) :-
+	seeing(Old, user), get(C), see(Old), Char = C.
+
+ttyskip(Char) :-
+	C is Char, seeing(Old, user), skip(C), see(Old).
+
+

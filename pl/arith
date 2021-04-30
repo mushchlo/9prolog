@@ -1,0 +1,125 @@
+%   File   : pl/arith
+%   Author : Fernando Pereira
+%   Updated: 2 June 84
+%   Purpose: Preprocess arithmetic expressions.
+
+/*  The point of all this junk is that C Prolog normally doesn't do
+    anything special with arithmetic, so that in a goal such as
+	X is Y+1
+    C Prolog says to itself "Aha!  Y occurs inside a structure inside
+    an argument, I must make it a GLOBAL variable!"  The trouble with
+    global variables is that they don't go away until you fail, so a
+    simple little program which does a lot of computing may tie up
+    enormous amounts of global stack it doesn't really need.  One cure
+    for this would be to provide a garbage collector.  Joking aside,
+    this file cures the problem by translating arithmetic goals into
+    calls on is/3 and is/4.  But only if the $carith flag is on.
+    Beware!  "X is Y" identifies X and Y at compile time!!!!!!
+    I have made the expansion simplify lists and evaluate constants
+    as well, so (Up is Lo+("a"-"A")) => is(Up, +, Lo, 32).
+*/
+
+$compile_arith(P0, P) :-
+	$carith(1, 1), !,
+	$expand_arith(P0, P).
+$compile_arith(P, P).
+
+$expand_arith(P, P) :-
+	var(P), !.
+$expand_arith((P0,Q0), (P,Q)) :- !,
+	$expand_arith(P0, P),
+	$expand_arith(Q0, Q).
+$expand_arith((P0;Q0), (P;Q)) :- !,
+	$expand_arith(P0, P),
+	$expand_arith(Q0, Q).
+$expand_arith((P0->Q0), (P;Q)) :- !,
+	$expand_arith(P0, P),
+	$expand_arith(Q0, Q).
+$expand_arith(X is Y, P) :-
+	nonvar(Y),		%  Don't bother rewriting simple expressions.
+	\+ atomic(Y),		%  In fact we mustn't rewrite variables.
+	!,
+	$expand_expr(Y, P0, X0),
+	$drop_is(X0, X, P1),
+	$and(P0, P1, P).
+$expand_arith(Comp0, R) :-
+	$compop(Comp0, Op, E, F), !,
+	$compop(Comp,  Op, U, V),
+	$expand_expr(E, P, U),
+	$expand_expr(F, Q, V),
+	$and(P, Q, R0),
+	$and(R0, Comp, R).
+$expand_arith(P, P).
+
+$and(true, P, P) :- !.
+$and(P, true, P) :- !.
+$and(P, Q, (P,Q)).
+
+$drop_is(V, V, true) :- var(V), !.
+$drop_is(V, X, X is V).
+
+$compop(X < Y, < , X, Y).
+$compop(X > Y, > , X, Y).
+$compop(X=< Y,=< , X, Y).
+$compop(X >=Y, >=, X, Y).
+$compop(X=:=Y,=:=, X, Y).
+$compop(X=\=Y,=\=, X, Y).
+
+$expand_expr(V, true, V) :-
+	var(V), !.
+$expand_expr([T], P, V) :- !,
+	$expand_expr(T, P, V).
+$expand_expr(A, true, A) :-
+	atomic(A), !.
+$expand_expr(T, P, V) :-
+	$unaryop(T, O, A), !,
+	$expand_expr(A, Q, X),
+	$expand_expr(V, O, X, Q, P).
+$expand_expr(T, P, V) :-
+	$binaryop(T, O, A, B), !,
+	$expand_expr(A, Q, X),
+	$expand_expr(B, R, Y),
+	$expand_expr(V, O, X, Y, Q, S),
+	$and(R, S, P).
+
+$expand_expr(Y, O, X, Q, Q) :-
+	number(X), !,
+	is(Y, O, X).
+$expand_expr(V, O, X, Q, P) :-
+	$and(Q, is(V,O,X), P).
+
+$expand_expr(Z, O, X, Y, Q, Q) :-
+	number(X), number(Y), !,
+	is(Z, O, X, Y).
+$expand_expr(Z, O, X, Y, Q, P) :-
+	$and(Q, is(Z,O,X,Y), P).
+
+
+$unaryop(+X,	+,	X).
+$unaryop(-X,	-,	X).
+$unaryop(\X,	\,	X).
+$unaryop(exp(X),exp,	X).
+$unaryop(log(X),log,	X).
+$unaryop(log10(X),log10,X).
+$unaryop(sqrt(X), sqrt, X).
+$unaryop(sin(X),sin,	X).
+$unaryop(cos(X),cos,	X).
+$unaryop(tan(X),tan,	X).
+$unaryop(asin(X), asin, X).
+$unaryop(acos(X), acos, X).
+$unaryop(atan(X), atan, X).
+$unaryop(floor(X),floor,X).
+
+$binaryop(X+Y,	+,	X,Y).
+$binaryop(X-Y,	-,	X,Y).
+$binaryop(X*Y,	*,	X,Y).
+$binaryop(X/Y,	/,	X,Y).
+$binaryop(X mod Y, mod,	X,Y).
+$binaryop(X//Y,	//,	X,Y).
+$binaryop(X/\Y,	/\,	X,Y).
+$binaryop(X\/Y,	\/,	X,Y).
+$binaryop(X<<Y,	<<,	X,Y).
+$binaryop(X>>Y,	>>,	X,Y).
+$binaryop(X^Y,	^,	X,Y).
+
+

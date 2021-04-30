@@ -1,0 +1,311 @@
+%   File   : pl/debug
+%   Author : R.A.O'Keefe.
+%   Updated: Friday March 9th, 1984, 0:40:51 am
+%   Purpose: A Dec-10-like Prolog debugger in C-Prolog.
+
+/*  Note:
+    The '$SET$' primitive is for this program and this program ALONE!
+    The 'f', 'r', and ';' commands are not understood yet.
+    This is a space hog.  Expect a factor of 20!
+    This file uses C-Prolog's own spypoint and leashing flags.
+*/
+/*  The debugger has to maintain a list of goals, for the sake of
+	Print <n> goals
+	Write <n> goals
+	Display <n> goals
+	Goals <n>
+    It also has to keep track of the invocation number, which could
+    be passed as an argument, but might as well be in the goal stack
+    (this will simplify retry goal <n> and fail goal <n> and redo
+    goal <n> when they are implemented).  If we are going to do that,
+    we might as well keep the depth in the goal stack as well.  And
+    we shall need some flags.  So the goal stack is a list of
+	goal(Goal,InvokNo,Depth,Flags)
+    records (we shall smash the flags with $SET$).  The invocation
+    counter is a global counter maintained by
+	invocount(NewValue)
+    or	invocount(Next)
+    This is hopelessly procedural, but so what.
+    db_mode is another global variable with 5 values:
+	0 : we are creeping
+	1 : we are leaping
+	2 : we are skipping
+	3 : we are quasi-skipping
+	4 : we are doing 'X'
+    calling db_mode(X) with X bound sets the variable to X, with
+    X unbound it returns the current value.
+*/
+
+db_mode(Value) :-
+	(   nonvar(Value) ; Old = Value   ), !,
+	'$SET$'(1, db_mode(0), Old, Value).
+
+
+invocount(Value) :-
+	Counter = invocount(0),
+	(   nonvar(Value), '$SET$'(1, Counter, _, Value)
+	;   '$SET$'(1, Counter, Value, Value+1)
+	),  !.
+
+
+debug(Goal) :-
+	invocount(2),
+	F = 0,					% beware of $SET$ !!
+	db_goal(goal(Goal,1,1,F), []).
+
+
+db_goal(goal(call(Goal),I,D,F), Goals) :- !,
+	nonvar(Goal),
+	db_body(Goal, D, Goals).
+db_goal(goal(\+(Goal),I,D,F), Goals) :-
+	nonvar(Goal),
+	db_body(Goal, D, Goals),
+	!, fail.
+db_goal(goal(\+(Goal),I,D,F), Goals) :- !.
+db_goal(Goal, Goals) :-
+	(   db_port(1, Goal, Goals)		% Call
+	;   db_call(Goal, Goals),
+	    (   db_port(2, Goal, Goals)		% Exit
+	    ;   true
+	    ;   db_port(3, Goal, Goals)		% Redo
+	    )
+	;   db_port(4, Goal, Goals)		% Fail
+	).
+
+
+db_port(Port, Goal, Goals) :-
+	db_mode(Mode),
+	Goal = goal(G,I,D,F),		%  NB: Goal is already bound
+	(   spying(G), C1 = 42		%  spypoint => "**" or "*>"
+	;   C1 = 32			% ~spypoint => "  " or " >"
+	),
+	(   F = 1, C2 = 62		%  skipped  => "*>" or " >"
+	;   F = 0, C2 = C1		% ~skipped  => "**" or "  "
+	),
+	!,
+	(   F = 1, '$SET$'(4, Goal, 1, 0), Stop = yes
+	;   Mode = 2, !, fail		%  skipping
+	;   C1 = 42, Stop = yes		%  spypoint
+	;   Mode = 4,			%  X (display is wrong, alas)
+	    (   Port > 2, Stop = no	%  show Fail,Redo but don't stop
+	    ;   db_mode(0), Stop = yes	%  stop at Call,Exit & resume creeping
+	    )
+	;   Mode > 0, !, fail		%  not creeping
+	;   '$leash'(Leash, Leash), Leash/\(1<<(4-Port)) =\= 0, Stop = yes
+	;   Stop = no			%  creeping but not leashed
+	),
+	arg(Port, goal(' Call: ',' Exit: ',' Redo: ',' Fail: '), Name),
+	!,
+	repeat,
+	    put(C1), put(C2), write(' ('), write(I),
+	    write(') '), write(D), write(Name), print(G),
+	    (   Stop = no, nl, !, fail
+	    ;   write(' ? '), ttyflush,
+		get_eol(C, N),
+		db_port(C, N, [Goal|Goals], Port)
+	    ),
+	!, fail.
+
+
+db_call(goal(Goal,I,D,F), Goals) :-
+	system(Goal),
+	!,
+	call(Goal).
+db_call(goal(Goal,I,D,F), Goals) :-
+	Goals2 = [goal(Goal,I,D,F)|Goals],
+	succ(D, E),
+	clause(Goal, Body),
+	db_body(Body, E, Goals2, AfterCut, HadCut),
+	(   HadCut = yes,
+		!,
+		db_body(AfterCut, E, Goals2)
+	;   HadCut = no
+	).
+
+
+db_body(Body, Depth, Goals) :-
+	db_body(Body, Depth, Goals, AfterCut, HadCut),
+	(   HadCut = yes,
+		!,
+		db_body(AfterCut, Depth, Goals)
+	;   HadCut = no
+	).
+
+
+db_body((Conj1,Conj2), Depth, Goals, AfterCut, HadCut) :- !,
+	db_body(Conj1, Conj2, Depth, Goals, AfterCut, HadCut).
+db_body(!, _, _, true, yes) :- !.
+db_body((Disj1;Disj2), Depth, Goals, AfterCut, HadCut) :-
+	db_body(Disj1, Depth, Goals, AfterCut, HadCut).
+db_body((Disj1;Disj2), Depth, Goals, AfterCut, HadCut) :- !,
+	db_body(Disj2, Depth, Goals, AfterCut, HadCut).
+db_body(true, _, _, true, no) :- !.
+db_body(Goal, Depth, Goals, true, no) :-
+	db_goal(Goal, Depth, Goals).
+
+db_body(!, AfterCut, _, _, AfterCut, yes) :- !.
+db_body((A,B), Conj, Depth, Goals, AfterCut, HadCut) :- !,
+	db_body(A, (B,Conj), Depth, Goals, AfterCut, HadCut).
+db_body((A;B), Conj, Depth, Goals, AfterCut, HadCut) :-
+	db_body(A, Conj, Depth, Goals, AfterCut, HadCut).
+db_body((A;B), Conj, Depth, Goals, AfterCut, HadCut) :- !,
+	db_body(B, Conj, Depth, Goals, AfterCut, HadCut).
+db_body(true, Body, Depth, Goals, AfterCut, HadCut) :- !,
+	db_body(Body, Depth, Goals, AfterCut, HadCut).
+db_body(Goal, Body, Depth, Goals, AfterCut, HadCut) :-
+	db_goal(Goal, Depth, Goals),
+	db_body(Body, Depth, Goals, AfterCut, HadCut).
+
+db_goal(Goal, Depth, Goals) :-
+	invocount(I),
+	F = 0,					% beware of $SET$ !!
+	db_goal(goal(Goal,I,Depth,F), Goals).
+
+/*  get_eol(C, N)
+    reads a line from the terminal.
+    The first non-blank character (other than a digit) is bound to C.
+    If there is no such character, C is bound to 10.
+    N is bound to a numeric value.
+*/    
+
+get_eol(C, N) :-
+	get0(Ch),
+	get_eol(Ch, 0, M, C),
+	( M = 0 ; N = M ), !.
+
+
+get_eol(10, N, N, 10) :- !.
+get_eol(10, N, N, C) :- !.
+get_eol(Ch, L, N, C) :-
+	Ch >= 48, Ch =< 57,
+	M is L*10 + (Ch-48),
+	get0(Dh),
+	!,
+	get_eol(Dh, M, N, C).
+get_eol(Ch, M, N, C) :-
+	var(C),
+	C is Ch\/32,
+	get0(Dh),
+	!,
+	get_eol(Dh, M, N, C).
+get_eol(_, M, N, C) :-
+	get0(Dh),
+	get_eol(Dh, M, N, C).
+
+
+default(N, _) :-
+	integer(N), !.
+default(N, N) :-
+	integer(N), !.
+default(N, L) :-
+	length(L, N).
+
+
+spying(Goal) :-
+	'$flags'(Goal, P, P),
+	P/\2'00010000 =\= 0.
+
+
+db_port( 10, _, _, _) :- !,				%  CR is creep
+	db_mode(0).
+db_port( 99, _, _, _) :- !,				%  Creep
+	db_mode(0).
+db_port(108, _, _, _) :- !,				%  Leap
+	db_mode(1).
+db_port(115, _, [Goal|S], Port) :-			%  Skip
+	arg(Port, db_port(yes,no,yes,no), yes), !,	%  (at Call or Redo)
+	db_mode(2),
+	'$SET$'(4, Goal, _, 1).
+db_port(115, _, _, _) :-				%  Skip
+	write('Wrong port for that.'), nl,
+	!, fail.
+db_port(113, _, [Goal|_], Port) :-			%  Quasi-Skip
+	arg(Port, db_port(yes,no,yes,no), yes), !,	%  (at Call or Redo)
+	db_mode(3),
+	'$SET$'(4, Goal, _, 1).
+db_port(113, _, _, _) :-				%  Quasi-Skip
+	write('Wrong port for that.'), nl,
+	!, fail.
+db_port(120, _, _, Port) :-				%  X (real choice)
+	arg(Port, db_port(no,no,yes,yes), yes), !,	%  (at Fail or Redo)
+	db_mode(4).
+db_port(120, _, _, _) :-				%  X (real choice)
+	write('Wrong port for that.'), nl,
+	!, fail.
+db_port(112, N, Goals, _) :- !,				%  Print goals
+	default(N, 1),
+	show_goals(Goals, N, print).
+db_port(119, N, Goals, _) :- !,				%  Write goals
+	default(N, 1),
+	show_goals(Goals, N, write).
+db_port(100, N, Goals, _) :- !,				%  Display goals
+	default(N, 1),
+	show_goals(Goals, N, display).
+db_port(103, N, Goals, _) :- !,				%  Goal stack
+	default(N, Goals),
+	show_goals(Goals, N, print).
+db_port( 97, N, Goals, _) :- !,				%  Abort
+	abort.
+db_port(101, N, Goals, _) :- !,				%  Exit
+	halt.
+db_port( 96, N, Goals, _) :- !,				%  @ (+32)
+	prompt(Old, '| :- '),
+	read(Command),
+	prompt(_, Old),
+	(   call(Command) ; write(?), nl   ),
+	!, fail.
+db_port(123, N, Goals, _) :- !,				%  [ consult user
+	consult(user),
+	fail.
+db_port(125, N, Goals, _) :- !,				%  ] reconsult user
+	reconsult(user),
+	fail.
+db_port( 37, N, Goals, _) :- !,				%  % call the shell
+	sh,
+	fail.
+db_port( 98, N, Goals, _) :- !,				%  Break
+	invocount(Count),				%  save it
+	break,						%  break can do debug
+	invocount(Count-1),				%  restore count
+	fail.
+db_port( 43, _, [goal(G,_,_,_)|_], _) :-		%  + (set spypoint)
+	(   spying(G), write(already)
+	;   '$flags'(G, F, F\/2'00010000), write(now)
+	),
+	write(' spying'), nl,
+	!, fail.
+db_port( 45, _, [goal(G,_,_,_)|_], _) :-		%  - (remove spypoint)
+	(   spying(G), '$flags'(G, F, F/\2'11101111), write('no longer')
+	;   write('was not')
+	),
+	write(' spying'), nl,
+	!, fail.
+db_port(109, N, [goal(G,I,D,F)|_], _) :-		%  Matching clauses	
+	system(G),
+	write('Built in'), nl,
+	!, fail.
+db_port(109, N, [goal(G,I,D,F)|_], _) :- !,		%  Matching clauses
+	'$list_clauses'(G).  /*fails*/
+db_port(_, N, Goals, _) :-
+	write(
+'Abort		Break		Creep		Display
+Exit		GoalStack	Help		Leap
+Matching	Print		Quasiskip	Skip
+Write		X=real choicept	[=consult	]=reconsult
+%shell		@command	+add spypoint	-remove spypoint
+The Fail, Retry, and ; commands are not yet implemented.
+'),	fail.
+
+
+show_goals([], _, _) :- !,
+	fail.
+show_goals([goal(Goal,I,D,F)|Goals], N, Method) :-
+	succ(M, N),
+	(   spying(Goal), write('**') ; write('  ')   ),
+	write(' ('), write(I), write(') '), write(D), put(32),
+	Call =.. [Method,Goal],
+	call(Call), nl,
+	!,
+	show_goals(Goals, M, Method).
+
+

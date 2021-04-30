@@ -1,0 +1,37 @@
+/*  File   : pl/error
+    Author : Richard O'Keefe
+    Updated: 17 September 83, 1983, 7:42:14 pm
+    Purpose: display error messages at the terminal.
+
+	This is just the beginning of a better  error  handling  system.
+    $error(Message,  Culprit)  writes  an  error  Message  on the "user"
+    stream, and prints the Culprit.  On UNIX, we really should  have  an
+    "error"  stream  that these messages can be sent to, and the tracing
+    messages should also go there.  In practice, "user" will serve.
+
+	Some errors should cause aborts, some failures, and  some  ought
+    to  switch  debugging  on.  This needs thinking about.  The culprits
+    used to be 'print'ed, they are now 'write'n.   I really have not the
+    least idea which is better.
+*/
+
+$error(Message, Culprit) :-
+	telling(Old, user),
+	write('
+! '),	write(Message),
+	write('
+! culprit: '),
+	write(Culprit),
+	nl,
+	tell(Old),
+	!, fail.
+
+
+$message(Message, Culprit) :-
+	telling(Old, user),
+	nl, write(Message),
+	write(Culprit),
+	nl,
+	tell(Old),
+	!.
+	

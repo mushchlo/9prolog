@@ -1,0 +1,51 @@
+%   File   : pl/ops
+%   Author : Richard A. O'Keefe
+%   Updated: 8 October 1983
+%   Purpose: define current_op/3 and is_op/5.
+
+%   current_op(Priority, Type, Operator)
+
+%   succeeds when there is a current definition of Symbol as an operator
+%   of type Type and priority Priority.  It may be used to check a given
+%   operator or to enumerate them (slowly).
+
+current_op(Priority, Type, Operator) :-
+	var(Operator), !,
+	current_atom(Operator),
+	current_op(Priority, Type, Operator).
+current_op(Priority, Type, Operator) :-
+	atom(Operator),
+	$op(Type, Num),		%  map names to codes 0, 1, 2
+	$is_op(Operator, Num, Priority, Left, Right),
+	$op(Type, Priority, Left, Right).
+
+$op( fx,  0).	$op( fx, O, _, P) :- succ(P, O).
+$op( fy,  0).	$op( fy, O, _, O).
+$op(xf,   2).	$op(xf,  O, P, _) :- succ(P, O).
+$op(yf,   2).	$op(yf,  O, O, _).
+$op(xfy,  1).	$op(xfy, O, P, O) :- succ(P, O).
+$op(xfx,  1).	$op(xfx, O, P, P) :- succ(P, O).
+$op(yfx,  1).	$op(yfx, O, O, P) :- succ(P, O).
+
+
+%   is_op(Operator, Fixity, Priority, Left, Right)
+
+%   is true when Operator is currently defined as a prefix/infix/postfix
+%   operator {Fixity = fx/xfx/xf} of priority Priority, whose left/right
+%   arguments have priorities Left/Right (arbitrary if there is no such
+%   argument).  
+
+
+is_op(Operator, Type, Priority, Left, Right) :-
+	var(Operator), !,
+	current_atom(Operator),
+	is_op(Operator, Type, Priority, Left, Right).
+is_op(Operator, Type, Priority, Left, Right) :-
+	atom(Operator),
+	$is_op(Type, Num),
+	$is_op(Operator, Num, Priority, Left, Right).
+
+$is_op( fx, 0).
+$is_op(xfx, 1).
+$is_op(xf,  2).
+

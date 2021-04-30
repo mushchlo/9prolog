@@ -1,0 +1,40 @@
+/* VISIBLE : Make normally hidden system predicates visible again
+
+						Lawrence
+						Updated: 16 January 82
+*/
+
+
+			% ALL predicates whose names start with a dollar sign
+			%  are made untracable (original state).
+
+invisible :-
+     ( current_atom(A), name(A,[36|_]), $current_functor(A,Arity,256,0),
+       functor(Pred,A,Arity), $flags(Pred,Flags,Flags\/32), fail  ;  true ).
+
+
+			% ALL predicates whose names start with a dollar sign
+			%  are made tracable again.
+
+visible :-
+     ( current_atom(A), name(A,[36|_]), $current_functor(A,Arity,256,0),
+       functor(Pred,A,Arity), $flags(Pred,Flags,Flags/\2'10011111), fail  ;  true ).
+
+
+			% Unlock all the system predicates
+
+unlock :-
+     ( current_atom(A), $current_functor(A,Arity,128,128),
+       functor(Pred,A,Arity), $flags(Pred,Flags,Flags/\2'01111111),
+       asserta(unlocked_system_predicate(Pred)), fail
+         ;  true ).
+
+
+			% Lock the system predicates back up again
+
+lock :-
+     ( retract(unlocked_system_predicate(Pred)),
+       $flags(Pred,Flags,Flags\/128), fail
+         ;  true ).
+
+

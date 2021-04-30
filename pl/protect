@@ -1,0 +1,72 @@
+/* protect : Setting the flags for the system predicates
+
+						Fernando Pereira
+						Updated: 17 September 83
+*/
+
+
+$mem(X, [X|_]).
+$mem(X, [_|Rest]) :-
+	$mem(X, Rest).
+
+$unprotected(term_expansion, 2).
+$unprotected(libdirectory, 1).
+
+% Predicate flags used here:
+%
+%	
+%	128 (PROTECTED)
+%	 64 (INVISIBLE)
+%	 32 (UNTRACEABLE)
+
+
+%  Cut must be transparent due to the way it is currently
+%  implemented (this fixes bug that prevented tracing
+%  past cuts).
+%  Note that transparent also seem to imply untraceable,
+%  which means you don't see cuts at all.
+
+:- $sysflgs(!, 64).
+
+
+			% This list are all transparent and untraceable.
+
+:-((
+	$mem(Pred, [call(_), (_,_), (_;_), $call(_), $hidden_call(_)]),
+	$sysflgs(Pred, 96),
+	fail
+    ;
+			% ALL predicates whose names start with a dollar sign
+			%  are made untraceable.
+	current_atom(Atom),
+	name(Atom, [36|_]),
+	$current_functor(Atom, Arity, 256, 0),
+	functor(Pred, Atom, Arity),
+	$flags(Pred, Flags, Flags\/32),
+	fail
+    ;
+			% The following predicates are better off invisible so
+ 			%  they are made untraceable as well.
+	$mem(Pred, [write(_), writeq(_), get0(_), skip(_), put(_), nl, 
+		    tab(_), display(_), print(_), listing, listing(_)]),
+	$sysflgs(Pred, 32),
+	fail
+    ;
+			% And now - ALL current predicates but those specified
+			%  by $unprotected are turned into
+			%  system predicates (which cannot be redefined, seen
+			%  by listing etc).
+	current_atom(Atom),
+	$current_functor(Atom, Arity, 256, 0),
+	\+ $unprotected(Atom, Arity),
+	functor(Pred, Atom, Arity),
+	$flags(Pred, Flags, Flags\/128),
+	fail
+    ;
+			% Finally, stop treating $ as a lower-case letter.
+			%  Instead, treat it like a cross-hatch
+	chtype("#", Symbol, Symbol),
+	chtype("$", Letter, Symbol)
+)).
+
+

@@ -1,0 +1,77 @@
+/*  File: Unify.Pl	Author: R.A.O'Keefe	Updated: 17 September 83
+
+    This file exports two predicates:
+		unify(X, Y)
+		occurs_check(X, Y).
+    unify(X, Y) is true when the two Prolog terms X and Y can be
+    unified, using genuine unification with the occurs check, and is
+    guaranteed to do the same bindings as X = Y when it succeeds. If
+    you are doing theorem proving or type checking with Prolog, what
+    you need is genuine unification, not Prolog's pattern match.  As
+    it might be useful, occurs_check(X, Y) fails when X occurs in Y.
+    It only works when X is a Prolog variable, but does not check.
+
+    The mode declarations for these predicate may seem surprising. A
+    quirk(?) of the mode system is that mode + does permit variables
+    to be passed in, provided they are not matched in any clause head.
+
+    No other utilities are needed.
+
+    Adapted to VAX on Wednesday March 16th, 1983, 11:22:59 pm
+
+:- public
+	occurs_check/2,		%   var x term ->
+	unify/2.		%   term x term ->
+
+:- mode
+	occurs_check(+,+),	%   first arg is a variable
+	occurs_check(+,+,+),
+	unify(+,+),
+	unify(+,+,+).
+*/
+
+
+unify(X, Y) :-
+	var(X), var(Y), !,
+	X = Y.			%  want unify(X,X) which fails occurs_check
+unify(X, Y) :-
+	var(X), !,
+	occurs_check(X, Y),
+	X = Y.
+unify(X, Y) :-
+	var(Y), !,
+	occurs_check(Y, X),
+	X = Y.
+unify(X, Y) :-
+	atomic(X), !,
+	X = Y.
+unify(X, Y) :-
+	functor(X, F, N),
+	functor(Y, F, N),
+	unify(N, X, Y).
+
+	unify(0, X, Y) :- !.
+	unify(N, X, Y) :-
+		succ(M, N),
+		arg(N, X, Xn),
+		arg(N, Y, Yn),
+		unify(Xn, Yn), !,
+		unify(M, X, Y).
+
+occurs_check(X, Y) :-
+	var(Y), !,
+	X \== Y.
+occurs_check(X, Y) :-
+	atomic(Y), !.
+occurs_check(X, Y) :-
+	functor(Y, _, N),
+	occurs_check(N, X, Y).
+
+	occurs_check(0, _, _) :- !.
+	occurs_check(N, X, Y) :-
+		succ(M, N),
+		arg(N, Y, Yn),
+		occurs_check(X, Yn), !,
+		occurs_check(M, X, Y).
+
+

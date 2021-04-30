@@ -1,0 +1,180 @@
+/*  File   : pl/tracing
+    Author : Lawrence Byrd? + Richard O'Keefe
+    Updated: 17 September 83, 1983, 8:00:07 pm
+    Purpose: interface to tracing flags
+
+    Note: this file is NOT responsible for producing tracing output.
+    That is in main.c, which must also agree with this file on which
+    bits mean what.
+*/
+
+debug :-
+	$debug(P, 1),
+	(   P = 1, $message('Debug mode already ', on)
+	|   P = 0, $message('Debug mode switched ', on)
+	),  !.
+
+nodebug :-
+	$debug(P, 0),
+	(   P = 0, $message('Debug mode already ', off)
+	|   P = 1,
+	    (	$someleft, $allspyremove,
+		$message('All spy-points ', removed)
+	    |   true
+	    ),
+	    $message('Debug mode switched ', off)
+	),  !.
+
+
+spy(X) :-
+	$spy(X, on),
+	$someleft,
+	debug,
+	fail.
+spy(_).
+
+nospy(X) :-
+	$spy(X, off),
+	fail.
+nospy(_).
+
+
+leash(Old, New) :-
+	$leash(X, X),
+	$leashcode(X, Old),
+	leash(New).
+
+leash(X) :-
+	nonvar(X),
+	$leashcode(X, N),
+	$leash(P, N), !,
+	telling(Old, user),
+	$prleash(N),
+	tell(Old), !.
+leash(X) :-
+	$error('Invalid leash specification', leash(X)).
+
+$leashcode(full, 2'1111) :- !.
+$leashcode(on,   2'1111):- !.
+$leashcode(half, 2'1010) :- !.
+$leashcode(loose,2'1000) :- !.
+$leashcode(off,  2'0000) :- !.
+$leashcode(N,    N) :-
+	integer(N), N >= 0, N =< 2'1111, !.
+
+
+$prleash(N) :-
+	$leashcode(Code, N),
+	write('Leashing set to '), write(Code), !,
+	$prleash([call,exit,back,fail], 8, N, no).
+
+$prleash([_|Codes], Mask, Bits, Seen) :-
+	0 is Mask /\ Bits, Next is Mask >> 1, !,
+	$prleash(Codes, Next, Bits, Seen).
+$prleash([Code|Codes], Mask, Bits, Seen) :-
+	Next is Mask >> 1,
+	$prleash(Seen, ', ', ' ('), write(Code), !,
+	$prleash(Codes, Next, Bits, yes).
+$prleash([], _, _, Seen) :-
+	$prleash(Seen, ').', '.'), nl.
+
+$prleash(yes, Yes, _) :- !,	write(Yes).
+$prleash(no,  _,  No) :- !,	write(No).
+
+
+debugging :-
+	$debug(D, D),
+	(   D = 0, !,
+		$message('Debug mode is ', off)
+	|   D = 1, !,
+		$message('Debug mode is ', on),
+	    (	$someleft, !,
+		    telling(Old, user),
+		    write('Spy-points set on : '), nl,
+		    (	current_atom(Functor),
+			$current_functor(Functor, Arity, 2'100010000, 2'11110000),
+			tab(8), write(Functor/Arity), nl, fail
+		    |   tell(Old)
+		    )
+	    |	$message('There are no spy-points ', set)
+	    ),
+	    $leash(L, L),
+	    $prleash(L)
+	),  !.
+
+$spy(V, _) :-
+	var(V), !,
+	$error('Invalid procedure specification', spy(X)).
+$spy([], _) :- !.
+$spy([Head|Tail], Flag):- !,
+	$spy(Head, Flag),
+	$spy(Tail, Flag).
+$spy(X, off) :-
+	$functorspec(X, Functor, Arity),
+	(   var(Arity)
+	|   A = Arity
+	),
+	(   $current_functor(Functor, A, 2'100010000, 2'11110000), !,
+	    (   $current_functor(Functor, Arity, 2'100010000, 2'11110000),
+		functor(T, Functor, Arity),
+		$flags(T, P, P/\2'11101111),
+		$message('Removed spy-point on ', Functor/Arity),
+		fail
+	    |	true
+	    )
+	|   $message('There is no spy-point on ', X)
+	),  !.
+
+$spy(X, on) :-
+	$functorspec(X, Functor, Arity),
+	(   atom(X),
+	    (	$current_functor(Functor, Arity, 2'100000000, 2'11110000),
+		functor(Head, Functor, Arity),
+		$enter(Head, Functor, Arity),
+		fail
+	    |	$current_functor(Functor, _, 2'100000000, 2'11100000)
+	    |	$message('You have no clauses for ', X)
+	    )
+	|   functor(Head, Functor, Arity),
+	    (	$current_functor(Functor, Arity, 2'100000000, 2'111100000)
+	    |	$message('You have no clauses for ', Functor/Arity)
+	    ),
+	    $enter(Head, Functor, Arity)
+	),  !.
+
+$spy(_, _).
+
+
+$enter(Head, Functor, Arity) :-
+	(   $current_functor(Functor, Arity, 2'100010000, 2'11110000),
+		Message = 'There already is a spy-point on '
+	|   $flags(Head, P, P),
+		(   P/\2'11100000 =:= 0, $flags(Head, P, P\/2'10000)
+		|   true
+		),
+		Message = 'Spy-point placed on '
+	),  !,
+	$message(Message, Functor/Arity).
+
+$someleft :-
+	current_atom(A),
+	$current_functor(A, _, 2'10000, 2'10000), !.
+
+$allspyremove :-
+	current_atom(F),
+	$current_functor(F, A, 2'100010000, 2'11110000),
+	functor(T, F, A),
+	$flags(T, P, P/\2'11101111),
+	fail.
+$allspyremove.
+
+$functorspec(V, _, _) :-
+	var(V), !,
+	$error('Invalid procedure specification', functor(V)).
+$functorspec(X, X, _) :-
+	atom(X), !.
+$functorspec(F/N, F, N) :-
+	atom(F), integer(N), !.
+$functorspec(X, _, _) :-
+	$error('Invalid procedure specification', functor(X)).
+

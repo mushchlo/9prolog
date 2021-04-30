@@ -1,0 +1,144 @@
+%   File   : pl/setof
+%   Author : David Warren, Fernando Pereira, R.A.O'Keefe
+%   Updated: 16 November 1983
+%   Purpose: define setof/3, bagof/3, findall/3, and findall/4
+%   Needs  : pl/sort, and has to be in the base load.
+
+%   16Nov83: split into setof and sort.  Top level of setof
+%	   : rewritten, introducing findall, and $bag bug fixed.
+
+%   The "existential quantifier" symbol is only significant to bagof
+%   and setof, which it stops binding the quantified variable.
+%   op(200, xfy, ^) is defined in the bootstrap file.
+
+Variable^Goal :-
+	call(Goal).
+
+
+%   findall/3 is a simplified version of bagof which has an implicit
+%   existential quantifier on every variable.
+
+findall(Template, Generator, Answers) :-
+	recorda($, $, Ref),
+	$findall(Template, Generator, Ref, [], Answers).
+
+
+findall(Template, Generator, SoFar, Answers) :-
+	recorda($, $, Ref),
+	$findall(Template, Generator, Ref, SoFar, Answers).
+
+
+$findall(Template, Generator, _, _, _) :-
+	$user_call(Generator),
+	recorda($, Template, _),
+	fail.
+$findall(_, _, Ref, SoFar, Answers) :-
+	$findall(Ref, SoFar, Answers).
+
+$findall(Ref, SoFar, Answers) :-
+	recorded($, Term, Tref),
+	!,
+	erase(Tref),
+	(   Tref == Ref, !, Answers = SoFar
+	;   $findall(Ref, [Term|SoFar], Answers)
+	).
+
+
+
+setof(Template, Generator, Set) :-
+	bagof(Template, Generator, Bag),
+	sort(Bag, Set0),
+	Set = Set0.
+
+
+bagof(Template, Generator, Bag) :-
+	$excess_vars(Generator, Template, [], FreeVars),
+	FreeVars \== [],
+	!,
+	Key =.. [$|FreeVars],
+	recorda($, $, Ref),
+	$findall(Key-Template, Generator, Ref, [], Bags0),
+	keysort(Bags0, Bags),
+	$pick(Bags, Key, Bag).
+bagof(Template, Generator, Bag) :-
+	recorda($, $, Ref),
+	$findall(Template, Generator, Ref, [], Bag0),
+	Bag0 \== [],
+	Bag = Bag0.
+
+
+
+$pick(Bags, Key, Bag) :-
+	Bags \== [],
+	$parade(Bags, Key1, Bag1, Bags1),
+	$decide(Key1, Bag1, Bags1, Key, Bag).
+
+$parade([K-X|L1], K, [X|B], L) :- !,
+	$parade(L1, K, B, L).
+$parade(L, K, [], L).
+
+$decide(Key, Bag, Bags, Key, Bag) :-
+	(   Bags = [], !
+	;   true
+	).
+$decide(_, _, Bags, Key, Bag) :-
+	$pick(Bags, Key, Bag).
+
+
+$excess_vars(T, X, L0, L) :-
+	var(T),
+	!,
+	(   $no_occurrence(T, X), !, $introduce(T, L0, L)
+	;   L = L0
+	).
+$excess_vars(X^P, Y, L0, L) :- !,
+	$excess_vars(P, (X,Y), L0, L).
+$excess_vars(setof(X,P,S), Y, L0, L) :- !,
+	$excess_vars((P,S), (X,Y), L0, L).
+$excess_vars(bagof(X,P,S), Y, L0, L) :- !,
+	$excess_vars((P,S), (X,Y), L0, L).
+$excess_vars(T, X, L0, L) :-
+	functor(T, _, N),
+	$rem_excess_vars(N, T, X, L0, L).
+
+$rem_excess_vars(0, _, _, L, L) :- !.
+$rem_excess_vars(N, T, X, L0, L) :-
+	succ(M, N),
+	arg(N, T, T1),
+	$excess_vars(T1, X, L0, L1),
+	$rem_excess_vars(M, T, X, L1, L).
+
+$introduce(X, L, L) :-
+	$included(X, L), !.
+$introduce(X, L, [X|L]).
+
+$included(X, L) :-
+	$doesnt_include(L, X),
+	!, fail.
+$included(X, L).
+
+$doesnt_include([], X).
+$doesnt_include([Y|L], X) :-
+	Y \== X,
+	$doesnt_include(L, X).
+
+$no_occurrence(X, Term) :-
+	$contains(Term, X),
+	!, fail.
+$no_occurrence(X, Term).
+
+$contains(T, X) :-
+	var(T), !,
+	T == X.
+$contains(T, X) :-
+	functor(T, _, N),
+	$upto(N, I),
+	arg(I, T, T1),
+	$contains(T1, X).
+
+$upto(N, N).
+$upto(N, I) :-
+	succ(M, N),
+	$upto(M, I).
+
+

@@ -1,0 +1,87 @@
+/*  File   : <prolog>/pl/ground
+    Author : R.A.O'Keefe
+    Updated: 17 September 83
+    Purpose: define the numbervars/3 and ground/1 predicate.
+
+    numbervars(Term, Init, Final) is mainly used to make terms
+    ground.  The type system in particular needs it so that it
+    can use unification to peform a subsumption test.  If the
+    Init argument is 0, the Final argument is the number of
+    distinct variables in the Term.
+
+    A fairly common way of using this is to achieve one-way
+    pattern matching.  By binding all the variables in this term
+    to $VAR(N) terms, we ensure that they cannot be bound again.
+    The trouble is, at the end of the day, we want these bindings
+    to go away as well.  So we have to fail, even when we might
+    have succeeded.  This leads to a structure similar to that of
+    negation:
+	one_way(Term, ...) :-
+		not not_one_way(Term, ...).
+
+	not_one_way(Term, ...) :-
+		numbervars(Term, 0, _),
+		good_outcome(......), !,
+		fail.
+	not_one_way(Term, ...).
+    One arrives at this pattern by thinking about the effect of
+    backtracking in a positive procedural sort of way, and it is
+    very definitely not the sort of thing a beginner could come
+    up with.
+
+    It can occasionally be useful to test whether a term is ground,
+    i.e. whether it contains any variables.  The obvious way to do
+    it is	numbervars(Term,0,0)
+    (if it isn't obvious, my explanation of numbervars is at fault).
+    However, we can make the test in less time and less space by
+    just working from the definnition: a term is ground if it
+    doesn't contain any variables.
+
+    numbervars and ground are typical of "meta-logical" predicates
+    which examine terms as data-structures.  If variables were just
+    another kind of constant (so that they didn't pattern match
+    against the variables in our clauses), these predicates could
+    be ordinary straight-forward logic, which is why we call them
+    "meta-logical" (they are logic at the meta-level).  Like Lisp,
+    Prolog puns the meta-level into the object level, which makes
+    for a powerful programming language, but does horrible things to
+    its elegance.  For example, meta-logical predicates cannot be
+    type-checked.  Our current ideas about type-checking them are
+    based on introducing an explicit meta-level, which gets
+    "compiled" into object-level Prolog *after* type-checking.
+*/
+
+numbervars('$VAR'(M), M, N) :- !,
+	succ(M, N).
+numbervars(Atomic, M, M) :-
+	atomic(Atomic), !.
+numbervars(Term, M, N) :-
+	functor(Term, _, Arity),
+	$numbervars(0, Arity, Term, M, N).
+
+$numbervars(A, A, _, N, N) :- !.
+$numbervars(Am, Arity, Term, M, N) :-
+	succ(Am, An),
+	arg(An, Term, Arg),
+	numbervars(Arg, M, K), !,
+	$numbervars(An, Arity, Term, K, N).
+
+
+ground(Term) :-
+	var(Term), !,		/* non ground */
+	fail.			/* so fail */
+ground(Term) :-
+	atomic(Term), !.	/* numbers and atoms are ground */
+
+ground(Term) :-			/* compound terms are ground if */
+	functor(Term, _, Arity),/* all their subterms are ground*/
+	$ground(Arity, Term).
+
+$ground(0, _) :- !.
+$ground(N, Term) :-
+	succ(M, N),
+	arg(N, Term, ArgN),
+	ground(ArgN), !,
+	$ground(M, Term).
+
+

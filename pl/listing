@@ -1,0 +1,288 @@
+/*  File   : $Prolog/pl/listing
+    Author : Richard A. O'Keefe
+    Updated: 23 April 1984
+    Purpose: Assorted output routines defined in Prolog.
+
+    The predicates defined are print/1, listing/0, and listing/1.
+    New: portray_clause(Cl).
+
+    The following magic numbers appear in put(N) calls:
+    32 = " ", 40 = "(", 41 = ")", 44 = ",", 91 = "[", 93 = "]", 124 = "|".
+    The priority of ',' is assumed to be 1000, which is true in this Prolog.
+
+*/
+
+%----------------------------------------------------------------------------%
+
+%   print(Term)
+
+%   write a Term to the current output, calling the user's portray/1
+%   predicate at each step (except for tails of lists which have not
+%   been matched in their entirety) to do any special formatting that
+%   may be required, or reverting to 'write'-like behaviour if the
+%   user doesn't want anything special done.  Ideally, this should be
+%   integrated into the debugging system, but alas it is not.
+%   It is debatable whether the top level priority should be 1200, as
+%   here, or 1000, as elsewhere and earlier.  Input starts at 1200.
+%   There are two special hacks for printing some sort of variable
+%   names: $VAR(N) prints as <letter><digits>, and $VAR(Atom) prints
+%   as Atom without any quotes, even for upper case.
+
+print(Term) :-
+	$print(Term, 1200).
+
+%   Print a term taking surrounding operator priorities into account.
+%   The first clause was added on 23-Apr-84 because f((:-)) was being
+%   print-ed as f(:-), which cannot be read back.
+
+$print(Atom, Priority) :-
+	atom(Atom),			%  Check for operators
+	(   $is_op(Atom, 0, P, _, _), P > Priority
+	|   $is_op(Atom, 1, P, _, _), P > Priority
+	|   $is_op(Atom, 2, P, _, _), P > Priority
+	),
+	!,
+	put(40), writeq(Atom), put(41).	%  (Atom)
+$print(Term, Priority) :-
+	(   var(Term)			%  _N style of variables
+	|   atomic(Term)		%  ordinary atoms & integers
+	),
+	!,
+	writeq(Term).			%  quotes around e.g. 'foo baz'
+$print('$VAR'(N), Priority) :- !,	%  ex-variables
+	$print_var(N).
+$print(Term, Priority) :-		%  check for user-defined formatting
+	$print(Term), !.
+$print({Term}, Priority) :- !,
+	put(123),			%  123 is "{"
+	$print(Term, 1200),
+	put(125).			%  125 is "}"
+$print([Head|Tail], Priority) :- !,	%  list
+	put(91),			%  91 is "["
+	$print(Head, 1000), !,
+	$print_tail(Tail).
+$print(Term, Priority) :-		%  prefix operator
+	functor(Term, Functor, 1),
+	$is_op(Functor, 0, Op, _, Rp), !,
+	$put_ch(Op, Priority, 40),	%  40 is "("
+	$put_op(Functor, 1, 0),
+	$print_arg(Rp, Term, 1),
+	$put_ch(Op, Priority, 41).	%  41 is ")"
+$print(Term, Priority) :-		%  postfix operator
+	functor(Term, Functor, 1),
+	$is_op(Functor, 2, Op, Lp, _), !,
+	$put_ch(Op, Priority, 40),	%  40 is "("
+	$print_arg(Lp, Term, 1),
+	$put_op(Functor, 0, 1),
+	$put_ch(Op, Priority, 41).	%  41 is ")".
+$print(Term, Priority) :-		%  infix operator
+	functor(Term, Functor, 2),
+	$is_op(Functor, 1, Op, Lp, Rp), !,
+	$put_ch(Op, Priority, 40),	%  40 is "("
+	$print_arg(Lp, Term, 1),
+	$put_op(Functor, 0, 0),
+	$print_arg(Rp, Term, 2),
+	$put_ch(Op, Priority, 41).	%  41 is ")"
+$print(Term, Priority) :-
+	functor(Term, Functor, N),
+	writeq(Functor),
+	$print(0, N, Term).
+
+
+$print(Term) :-
+	$print_arg(Term), !, fail.
+$print(Term).
+
+
+%   print_var(X) handles $VAR(X).
+
+$print_var(N) :-
+	integer(N), N >= 0, !,
+	put("A"+N mod 26),
+	(   N < 26
+	|   M is N//26, write(N)
+	), !.
+$print_var(A) :-
+	atom(A), !,
+	write(A).
+$print_var(X) :-
+	writeq('$VAR'(X)).
+
+
+$print_arg(Term) :-
+	portray(Term), !, fail.
+$print_arg(Term).
+
+
+%   $print_arg(Priority, Term, ArgNo)
+
+%   print the Argnoth argument of Term with the given Priority.
+
+$print_arg(Priority, Term, ArgNo) :-
+	arg(ArgNo, Term, Arg),
+	$print(Arg, Priority).
+
+%   $put_op(Op, LeftContext, RightContext)
+
+%   display an operator symbol with spacing dependent on its left and
+%   right contexts.  This should be done at the putatomq level, which
+%   doesn't exist in this version of Prolog.
+
+$put_op(',', _, _) :- !,
+	write(', ').
+$put_op(';', _, _) :- !,
+	write('; ').
+$put_op(Functor, L, R) :-
+	$put_ch(1, L, 32),		%  32 is " "
+	write(Functor),
+	$put_ch(1, R, 32).		%  32 is " "
+
+%   print the arguments of a term
+
+$print(0, N, Term) :- !,
+	put(40),			%  40 is "("
+	$print_arg(1000, Term, 1), !,
+	$print(1, N, Term).
+$print(N, N, Term) :- !,
+	put(41).			%  41 is ")"
+$print(L, N, Term) :-
+	succ(L, M),
+	write(', '),
+	$print_arg(1000, Term, M), !,
+	$print(M, N, Term).
+
+
+%   $put_ch(Priority, Context, Character)
+
+%   print Character if the Priority exceeds that of its Context.
+
+$put_ch(Priority, Context, Character) :-
+	Priority > Context, !,
+	put(Character).
+$put_ch(_, _, _).
+
+
+%   $print_tail(List)
+
+%   Print the tail of a list, being careful not to instantiate a
+%   possible variable at the (current) end of the list.
+
+$print_tail(List) :-
+	nonvar(List), List = [Head|Tail], !,
+	put(44),			%  44 is ","
+	$print(Head, 1000), !,
+	$print_tail(Tail).
+$print_tail(Tail) :-
+	Tail \== [],
+	put(124),			%  124 is "|"
+	$print(Tail, 1000), !,
+	$print_tail([]).
+$print_tail([]) :-
+	put(93).			%  93 is "]"
+
+
+%----------------------------------------------------------------------------%
+
+
+%   listing
+
+%   calls listing(Pred) for each current_predicate Pred.
+
+listing :-
+	current_predicate(_,Pred),
+	nl,
+	$list_clauses(Pred).
+listing.
+
+
+%   listing(PredSpecs)
+
+%   Takes a predicate specifier F/N, a partial specifier F, or a
+%   list of such things, and lists each current_predicate Pred
+%   matching one of these specifications.
+
+listing(V) :-
+	var(V), !.       % ignore variables
+listing([]) :- !.
+listing([X|Rest]) :- !,
+        listing(X),
+        listing(Rest).
+listing(X) :-
+        $functorspec(X, Name, Arity),
+        current_predicate(Name, Pred),
+        functor(Pred, Name, Arity),
+	nl,
+        $list_clauses(Pred).
+listing(_).
+
+
+listing(F, N) :-
+	functor(P, F, N),
+	listing(P).
+
+$list_clauses(Pred) :-
+	clause(Pred, Body),
+	portray_clause((Pred:-Body)),
+	fail.
+
+
+portray_clause((Pred:-Body)) :- 
+	numbervars(Pred+Body, 0, _),
+	print(Pred),
+	$list_clauses(Body, 0, 2, 8), !.
+portray_clause((Pred)) :-
+	portray_clause((Pred:-true)).
+
+
+$list_clauses((A,B), L, R, D) :- !,
+	$list_clauses(A, L, 1, D), !,
+	$list_clauses(B, 1, R, D).
+$list_clauses(true, L, 2, D) :- !,
+	put(46), nl.			%  46 is "."
+$list_clauses((A;B), L, R, D) :- !,
+	$list_magic(fail, L, D),
+	$list_magic((A;B), 0, 2, D),
+	$list_magic(R, '.
+').
+$list_clauses((A->B), L, R, D) :- !,
+	$list_clauses(A, L, 5, D), !,
+	$list_clauses(B, 5, R, D).
+$list_clauses(Goal, L, R, D) :-
+	$list_magic(Goal, L, D),
+	print(Goal),
+	$list_magic(R, '.
+').
+
+$list_magic(!,    0, D) :- !, 
+	write(' :- ').
+$list_magic(!,    1, D) :- !,
+	write(',  ').
+$list_magic(Goal, 0, D) :- !,
+	write(' :- '),
+	nl, tab(D).
+$list_magic(Goal, 1, D) :- !,
+	put(44),			%  44 is ","
+	nl, tab(D).
+$list_magic(Goal, 3, D) :- !,
+	write('(   ').
+$list_magic(Goal, 4, D) :- !,
+	write('|   ').
+$list_magic(Goal, 5, D) :- !,
+	write(' ->'),
+	nl, tab(D).
+
+$list_magic(2, C) :- !, write(C).
+$list_magic(_, _).
+
+$list_magic((A;B), L, R, D) :- !,
+	$list_magic(A, L, 1, D), !,
+	$list_magic(B, 1, R, D).
+$list_magic(Conj,  L, R, D) :-
+	plus(D, 8, E),
+	plus(L, 3, M),
+	$list_clauses(Conj, M, 1, E),
+	nl, tab(D),
+	$list_magic(R, ')').
+
+
+

@@ -1,0 +1,25 @@
+%   File   : cplog:all
+%   Author : Fernando Pereira
+%   Updated: 20 February 1984
+%   Purpose: Load all the current bits of the standard Prolog system.
+
+:- [
+	'pl/tty',			%  tty* predicates
+	'pl/error',			%  $error and $message
+	'pl/arith',			%  arithmetic expression flattener
+	'pl/grammar',		%  DCG grammar rule translation
+	'pl/sort',			%  sort, keysort, merge, msort
+	'pl/setof',			%  setof, bagof, ^ 
+	'pl/tracing',		%  Debugging evaluable predicates
+	'pl/listing',		%  Listing and other output
+	'pl/ops',			%  Operator declaration/lookup
+	'pl/ground',			%  numbervars/ground
+	'pl/unify',			%  unify/occurs_check
+	'pl/lib'			%  lib/libdirectory
+].
+
+:- [
+	'pl/protect'			%  Lock things up
+].
+
+
