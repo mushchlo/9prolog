@@ -133,7 +133,7 @@ extern int PrologEvent;
 
  void Interrupt();
 
-
+
 /*----------------------------------------------------------------------+
 |									|
 |		Error and Event/Signal handling				|
@@ -254,7 +254,7 @@ void SyntErrPos()
     }
 
 
-
+
 /*----------------------------------------------------------------------+
 |									|
 |	File name expansion.						|
@@ -341,7 +341,7 @@ char *expand_file(Fancy)
 
 #endif	unix
 
-
+
 /*----------------------------------------------------------------------+
 |									|
 |			I/O proper					|
@@ -769,7 +769,7 @@ cont:
     }
 
 
-
+
 /*----------------------------------------------------------------------+
 |									|
 |		File-system operations other than I/O			|
@@ -919,7 +919,7 @@ int CallShell(command)
 #endif	unix
     }    
 
-
+
 /*----------------------------------------------------------------------+
 |									|
 |			Create the memory partitions			|
