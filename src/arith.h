@@ -17,51 +17,20 @@
 
 /*  Internal code for the Nullary operators:				*/
 
-#define	TIME	1
-#define	HEAP	2
-#define STACK	3	/* new in 1.4b -- global stack in bytes */
-#define PI	4	/* new in 1.2D */
-#define	LOG2	5	/* new in 1.4b -- log(2), not log10(2) */
+enum { TIME = 1, HEAP, STACK, PI, LOG2 };
+
+/* STACK is new in 1.4b -- global stack in bytes */
+/* PI is new in 1.2D */
+/* LOG2 is new in 1.4b -- log(2), not log10(2) */
 
 /*  Internal codes for the Unary operators:				*/
 
-#define ID	1
-#define UMINUS	2
-#define NOT	3
-#define EXP	4
-#define LOG	5
-#define LOG10	6
-#define SQRT	7
-#define SIN	8
-#define COS	9
-#define TAN	10
-#define ASIN	11
-#define ACOS	12
-#define ATAN	13
-#define FLOOR	14
-#define FLOAT	15
+enum { ID = 1, UMINUS, NOT, EXP, LOG, LOG10, SQRT, SIN, COS, TAN, ASIN, ACOS, ATAN, FLOOR, FLOAT };
 
 /*  Internal codes for the Binary operators:				*/
 
-#define PLUS	1
-#define MINUS	2
-#define TIMES	3
-#define DIVIDE	4
-#define MOD	5
-#define AND	6
-#define	OR	7
-#define LSHIFT	8
-#define RSHIFT	9
-#define IDIV	10
-#define POW	11
-#define	ATAN2	12
+enum { PLUS = 1, MINUS, TIMES, DIVIDE, MOD, AND, OR, LSHIFT, RSHIFT, IDIV, POW, ATAN2 }
 
 /* Internal codes for the Comparison operators:				*/
 
-#define EQ	0		/* =:= */
-#define NE	1		/* =\= */
-#define LT	2		/* < */
-#define GT	3		/* > */
-#define LE	4		/* =< */
-#define GE	5		/* >= */
-
+enum { EQ, NE, LT, GT, LE, GE };

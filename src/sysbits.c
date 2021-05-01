@@ -80,9 +80,9 @@
 #include <stdarg.h>
 #include "pl.h"
 
-#   include <sys/types.h>
-#   include <sys/times.h>
-#   include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/times.h>
+#include <sys/stat.h>
 
 #if	FOLD
 #define	TtyWidth	78
@@ -90,9 +90,8 @@
 #endif	FOLD
 	int	IsaTty;
 
-#define READ	1
-#define WRITE	2
-#define APPEND	3
+enum { READ = 1, WRITE, APPEND };
+
 
 #define PromptSize	81
 

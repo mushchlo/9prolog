@@ -93,10 +93,7 @@ PTR	Regs_tr;		/* top of trail */
 
 /* Variables and constants for the basic debugging package */
 
-#define CALL_PORT	0
-#define EXIT_PORT	1
-#define BACK_PORT	2
-#define FAIL_PORT	3
+enum { CALL_PORT, EXIT_PORT, BACK_PORT, FAIL_PORT };
 #define NEVER_SKIP	1000000
 
 	char *portname[] = {"call", "exit", "back", "fail"};

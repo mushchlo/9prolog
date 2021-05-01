@@ -22,9 +22,7 @@
 #include <math.h>
 #include <errno.h>
 
-#define NEVER		0
-#define SOMETIMES	1
-#define	ALWAYS		2
+enum { NEVER, SOMETIMES, ALWAYS };
 
 int AllFloat = TRUE;		/* may only be TRUE or FALSE */
 

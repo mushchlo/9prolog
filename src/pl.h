@@ -22,13 +22,8 @@
 
 //#define COUNTING 1
 
-#if defined(__linux__) || defined(__unix__) || defined(_WIN64)
-	#define PRO_X64
-	#define ProPlatform "x64"
-#else _WIN32
-	#define PRO_X32
-	#define ProPlatform "x32"
-#endif _WIN32
+#define PRO_X64
+#define ProPlatform "x64"
 
 
 #define TRUE	1
@@ -679,8 +674,8 @@ typedef struct MOL
 
 /* clause/record flags */
 
-#define ERASED	1		/* erased but not yet removed */
-#define IN_USE	2		/* in use in a proof, cannot be deleted yet */
+enum { ERASED = 1,		/* erased but not yet removed */
+		IN_USE };		/* in use in a proof, cannot be deleted yet */
 
 /*  Flags in a functor entry.  They apply to the predicate.  NB: the low
     order  4  bits  of  the  flags  field in a functor or atom entry, if
@@ -705,47 +700,35 @@ typedef struct MOL
 
 /* Internal event conditions */
 
-#define COLD_START	0	/* first thing in the morning */
-#define ABORT		1	/* 'abort' evaluable predicate */
-#define IO_ERROR	2	/* every STDIO failure that is not */
-#define END_OF_FILE	3	/* end of file on input */
-#define ARITH_ERROR	4	/* incorrect args. to 'is", =:=, etc. */
-#define GEN_ERROR	5	/* all others report here */
+enum { COLD_START,		/* first thing in the morning */
+		ABORT,			/* 'abort' evaluable predicate */
+		IO_ERROR,		/* every STDIO failure that is not */
+		END_OF_FILE,	/* end of file on input */
+		ARITH_ERROR,	/* incorrect args. to 'is", =:=, etc. */
+		GEN_ERROR };	/* all others report here */
 
 /* Initial state flags (set by switches: see parms.c) */
 
 #define	InBoot	 State[IN_BOOT]
 #define	Announce State[TRACE]
 
-#define IN_BOOT  0
-#define DEBUG	 1
-#define QUIET	 2
-#define TRACE	 3
+enum { IN_BOOT, DEBUG, QUIET, TRACE };
 
 /* predefined I/O streams */
-
-#define	STDIN	0
-#define STDOUT	1
-#define	STDERR	2
+enum { STDIN, STDOUT, STDERR };
 
 /* Work areas */
 
 /* Indices of areas */
 
 #if	BACKWARDS
-#   define AuxId	0
-#   define TrailId 	1
-#   define GlobalId	2
-#   define LocalId	3
-#   define HeapId	4
-#   define AtomId	5
+
+enum { AuxId, TrailId, GlobalId, LocalId, HeapId, AtomId };
+
 #else  !BACKWARDS
-#   define AuxId	0
-#   define TrailId	1
-#   define AtomId	2
-#   define HeapId	3
-#   define GlobalId	4
-#   define LocalId	5
+
+enum { AuxId, TrailId, AtomId, HeapId, GlobalId, LocalId };
+
 #endif	BACKWARDS
 #define NAreas		6	/* number of work areas/stacks */
 

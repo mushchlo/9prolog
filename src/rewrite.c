@@ -18,9 +18,7 @@
 #include <string.h>
 #include "pl.h"
 
-#define PREFIX	0
-#define INFIX	1
-#define POSTFIX	2
+enum { PREFIX, INFIX, POSTFIX };
 
 /* decrease left priority flag */
 
@@ -436,13 +434,7 @@ void ProPWrite(term, frame, priority)
 ---------------------------------------------------------------------------*/
 
 /* Token types */
-
-#define FULLSTOP	0
-#define NAME		1
-#define PRIMITIVE	2
-#define VAR		3
-#define STRING		4
-#define PUNCTUATION	5
+enum { FULLSTOP, NAME, PRIMITIVE, VAR, STRING, PUNCTUATION };
 
 #include <setjmp.h>
 	jmp_buf	ReadHandler;	/* for errors */

@@ -69,9 +69,7 @@ void InitHeap()
 
 #if	ERRCHECK
 
-#define NOOVERLAP	0
-#define SAME		1
-#define OVERLAP		2
+enum { NOOVERLAP, SAME, OVERLAP };
 
  int overlap(a, b)
     register PTR a, b;

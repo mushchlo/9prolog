@@ -47,137 +47,35 @@
 |									|
 +----------------------------------------------------------------------*/
 
-#define _and_		 1
-#define _hidden_call_	 2
-#define _user_call_	 3
-#define _call_		 4
-#define _cut_		 5
-#define _repeat_	 6
-#define _abort_		 7
-#define _call1_		 8
-#define _yes_		 9
-#define _no_		10
-#define _halt_		11
-#define _break_		12
-#define _break_start_	13
-#define _break_end_	14
-#define _exit_break_	15
-#define _user_exec_	16
-#define _repply_	17
-#define	_fail_		18
-#define _kcompare_	19
-#define _ncompare_	20
-/*      +EQ +NE +LT +GE +GT +LE
-	are reserved for =:= =/= < >= > =<
-*/
-#define _lseq_	       122
-#define _plus_	       117
-#define _succ_		26
-#define _is_		27
-/*	+0 +1 +2
-	are reserved for is/2, is/3, is/4
-*/
-#define _var_		30
-#define _nonvar_	31
-#define _integer_	32
-#define _number_	33
-#define _primitive_	34
-#define _db_reference_	35
-#define _atomic_	36
-#define _atom_		37
-#define	_compound_	38
-#define _compare_	39
-#define _tcompare_	40
-/*	+ EQ +NE +LT +GE +GT +LE
-	are reserved for == \== @< @>= @> @=<
-*/
-#define _name_		46
-#define _functor_	47
-#define _arg_		48
-#define _univ_		49
-#define _z1_assert_	50
-#define _a1_assert_	51
-#define _z2_assert_	52
-#define _a2_assert_	53
-#define _recordz_	54
-#define _recorda_	55
-#define _assertr_	56
-#define _instance_	57
-#define _erase_		58
-#define _erased_	59
-#define _clause_	60
-/* reserved for loop	61	*/
-#define _recorded_	62
-/* reserved for loop	63	*/
-#define _catom_		64
-/* reserved for loop	65	*/
-#define _cfunctor_	66
-/* reserved for loop	67	*/
-#define _abolish_	68
-#define _is_op_		69
-#define _see_		70
-#define _seeing_	71
-#define _2seeing_	72
-#define _3seeing_	98
-#define _seen_		73
-#define _tell_		74
-#define _append_	75
-#define _telling_	76
-#define _2telling_	77
-#define _3telling_	99
-#define _told_		78
-#define _close_		79
-#define	_ttyflush_	119
-#define _read_		80
-#define _read2_		97
-#define _get0_		81
-#define _get_		82
-#define _skip_		83
-#define _curlineno_	120
-#define _display_	84
-#define _write_		85
-#define _writeq_	86
-#define _nl_		87
-#define _put_		88
-#define _tab_		89
-#define _xprompt_	90
-#define _expfilename_	123
-#define _exists_	91
-#define _rename_	92
-#define _chdir_		93
-#define _sh_		94
-#define _shell_		95
-#define _save_		96
-/* 97-99 used by late additions */
-#define _fileerrors_	100
-#define _nofileerrors_	101
-#define _LC_		102
-#define _NOLC_		103
-#define _change_chtype_	104
-#define _op_		105
-#define _prompt_	106
-#define _trace_		107
-#define _leash_		108
-#define _debug_		109
-#define _flags_		110
-#define _all_float_	111
-#define _sysp_		112
-#define _sysflgs_	113
-#define _recons_	114
-#define _carith_	115
-#define _unknown_	116
-#define	_statistics_	118
-#define _set_		121
-#define _colour_	124
-#define	_offset_	125
-#define	_enable_	126
-#define	_plot_		127
-#define	_line_		128
-#define	_trapeze_	129
-#define	_triangle_	130
-#define	_fill_		131
-#define	_clear_		132
-#define	_mouse_		133
+/* 1 - 133 */
+
+enum { _and_ = 1, _hidden_call_, _user_call_,
+		_cut_, _repeat_, _abort_, _call1_, _yes_,
+		_no_, _halt_, _break_, _break_start_, _break_end_,
+		_exit_break_, _user_exec_, _repply_, _fail_, _kcompare_,
+		_ncompare_,
+		_succ_ = 26, _is_ = 27,
+		_var_ = 30, _nonvar_, _integer_, _number_, _primitive_,
+		_db_reference_, _atomic_, _atom_, _compound_, _compare_,
+		_tcompare_,
+		_name_ = 46, _functor_, _arg_, _univ_,
+		_z1_assert_, _a1_assert_, _z2_assert_, _a2_assert_, _recordz_,
+		_recorda_, _assertr_, _instance_, _erase_, _erased_,
+		_clause_, _recorded_ = 62, _catom_ = 64,
+		_cfunctor = 66, _abolish_ = 68, _is_op_,
+		_see_, _seeing_, _2seeing_, _seen_, _tell_,
+		_append_, _telling_, _2telling_, _told_, _close_,
+		_read_, _get0_, _get_, _skip_, _display_,
+		_write_, _writeq_, _nl_, _put_, _tab_,
+		_xprompt_, _exists_, _rename_, _chdir_, _sh_,
+		_shell_, _save_, _read2_, _3seeing_, _3telling_,
+		_fileerrors_, _nofileerrors_, _LC_, _NOLC_, _change_chtype_,
+		_op_, _prompt_, _trace_, _leash_, _debug_,
+		_flags_, _all_float_, _sysp_, _sysflgs_, _recons_,
+		_carith_, _unknown_, _plus_, _statistics_, _ttyflush_,
+		_curlineno_, _set_, _lseq_, _expfilename_, _colour_,
+		_offset_, _enable_, _plot_, _line_, _trapeze_,
+		_triangle_, _fill_, _clear_, _mouse_ };
 
 #define NPREDS		133
 
