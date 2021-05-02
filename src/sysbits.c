@@ -127,7 +127,8 @@ extern int PrologEvent;
 
 /*  Return the error message for system error #errno  */
 
-const char *SysError()
+const char *
+SysError (void)
     {
 	return "Unknown Unix error";
     }
@@ -135,8 +136,8 @@ const char *SysError()
 
 /*  stop, and perhaps produce a dump (it's HUGE)  */
 
-void Stop(dump)
-    int dump;
+void 
+Stop (int dump)
     {
 	if (dump || State[DEBUG]) {
 	    ProError("\nInternal error: dumping core.\n");
@@ -154,8 +155,8 @@ void Stop(dump)
 /*  "signal" a Prolog Event, recovering if possible  */
 /*  "crit" means that recovery is not possible, beware of critical regions  */
 
-void Event(n)
-    int n;
+void 
+Event (int n)
     {
 	if (State[DEBUG]) ProError("\n Prolog event %d\n", n);
 	if (!running) {
@@ -182,8 +183,8 @@ void Event(n)
 /*  Report that memory partition has run out.  Should this be here?  */
 /*  This used to be declared as type PTR.  It is not so used, though */
 
-void NoSpace(s)
-    int s;
+void 
+NoSpace (int s)
     {
 	Ignore sprint(OutBuf, "\n! Out of %s during execution.\n",
 	    s >= 0 && s < NAreas ?  AreaName[s] : "?space?");
@@ -194,9 +195,8 @@ void NoSpace(s)
 
 
 /*  turn UNIX signals into Prolog Events or interrupts  */
-void
- TakeSignal(s)
-    int s;
+void 
+TakeSignal (int s)
     {
 	if (State[DEBUG]) ProError("\nSignal %d\n", s);
 	switch (s) {
@@ -219,7 +219,8 @@ void
 
 /*  Tell UNIX to call TakeSignal on certain errors  */
 
-void CatchSignals()
+void 
+CatchSignals (void)
     {
 	Ignore signal(SIGINT, TakeSignal);
 	Ignore signal(SIGFPE, TakeSignal);
@@ -228,7 +229,8 @@ void CatchSignals()
 
 /*  report a syntax error on the current input channel  */
 
-void SyntErrPos()
+void 
+SyntErrPos (void)
     {
 	ProError("\n*** Syntax error at line %d of %s ***\n",
 	    FileLine[Input],
@@ -256,8 +258,8 @@ extern	__uid_t	getuid();
 	char	FredUserName[20];	/* what ~fred did we last expand? */
 	char	FredLoginDir[80];	/* what did ~fred expand to? */
 
- char *CopyPrefix(from, to)
-    register char *from, *to;
+ char *
+CopyPrefix (register char *from, register char *to)
     {
 	register int c;
 
@@ -266,8 +268,8 @@ extern	__uid_t	getuid();
 	return from;
     }
 
-char *expand_file(Fancy)
-    register char *Fancy;
+char *
+expand_file (register char *Fancy)
     {
 	 char Expanded[120];
 
@@ -387,8 +389,8 @@ int ProError(const char *fmt, ...)
     0) it is not possible to close it.  This  assumes  that  breaks  are
     never nested more than 255 deep.
 */
-void LockChannels(lock)
-    int lock;
+void 
+LockChannels (int lock)
 {
 	int i;
 
@@ -407,8 +409,8 @@ void LockChannels(lock)
 }
 
 
- void CClose(i)
-    register int i;
+ void 
+CClose (register int i)
 {
 	if (FileLock[i]) {
 	    clearerr(File[i]);
@@ -421,8 +423,8 @@ void LockChannels(lock)
 }
 
 
-void PClose(file)
-    ATOMP file;
+void 
+PClose (ATOMP file)
     {
 	register int i;
 
@@ -434,7 +436,8 @@ void PClose(file)
     }
 
 
-void CloseFiles()
+void 
+CloseFiles (void)
     {
 	register int i;
 
@@ -444,41 +447,49 @@ void CloseFiles()
     }
 
 
-void Seen()
+void 
+Seen (void)
     {
 	CClose(Input);		/* sets Input = STDIN */
     }				/* just clearerr-s stdin */
 
 
-void Told()
+void 
+Told (void)
     {
 	CClose(Output);		/* sets Output = STDOUT */
     }				/* just clear-errs stdout or stderr */
 
 
-ATOMP Seeing()
+ATOMP 
+Seeing (void)
     {
 	return FileAtom[Input];
     }
 
 
-ATOMP Telling()
+ATOMP 
+Telling (void)
     {
 	return FileAtom[Output];
     }
 
 
-char *AtomToFile(file)
-    register ATOMP file;		/* well, let's hope... */
+char *
+AtomToFile (
+    register ATOMP file		/* well, let's hope... */
+)
     {
 	if (IsPrim(file) || !IsAtomic(file)) IODie(BadFileSpec);
 	return expand_file(file->stofae);
     }
 
 
- int COpen(title, mode)
-    char *title;
-    int mode;		/* READ|WRITE|APPEND */
+ int 
+COpen (
+    char *title,
+    int mode		/* READ|WRITE|APPEND */
+)
     {
 	register int i;
 	char *cmode = mode==READ ? "r" : mode==WRITE ? "w" : "a";
@@ -493,15 +504,17 @@ char *AtomToFile(file)
     }
 
 
-void CSee(title)				/* only used by the bootstrap loader */
-    char *title;
+void 
+CSee (				/* only used by the bootstrap loader */
+    char *title
+)
     {
 	Input = COpen(title, READ);
     }
 
 
-void Flush(file)
-    register PTR file;
+void 
+Flush (register PTR file)
     {
 	register int i = MaxFile;
 
@@ -518,8 +531,8 @@ void Flush(file)
     }
 
 
-void See(file)
-    register ATOMP file;
+void 
+See (register ATOMP file)
     {
 	register int i;
     
@@ -539,9 +552,8 @@ void See(file)
     }
 
 
-void Tell(file, append)
-    register ATOMP file;
-    int append;
+void 
+Tell (register ATOMP file, int append)
     {
 	register int i;
     
@@ -561,8 +573,8 @@ void Tell(file, append)
     }
 
 
-void Put(c)
-    int c;
+void 
+Put (int c)
 {
 	if (Output == STDOUT) {
 	    NewLine = c == '\n';
@@ -587,8 +599,8 @@ void Put(c)
 }
 
 
-void PutString(s)
-    register char *s;
+void 
+PutString (register char *s)
 {
 	register int c;
 
@@ -603,8 +615,8 @@ void PutString(s)
 }
 
 
-void SetPlPrompt(s)
-    char *s;
+void 
+SetPlPrompt (char *s)
     {
 	if (s) strncpy(PlPrompt, s, PromptSize-1);
 	PlPrompt[PromptSize-1] = '\0';
@@ -619,8 +631,8 @@ void SetPlPrompt(s)
     any channel other than stdout.  This whole area needs a proper
     design rather than the incremental hacking it has received.
 */
-void Prompt(s)
-    char *s;
+void 
+Prompt (char *s)
     {
 	if (!IsaTty) return;
 	PutString(s);
@@ -628,14 +640,15 @@ void Prompt(s)
     }
 
 
-void PromptIfUser(s)
-    char *s;
+void 
+PromptIfUser (char *s)
     {
 	if (Input == STDIN && Output == STDOUT) Prompt(s);
     }
 
 
-int Get()
+int 
+Get (void)
     {
 	register FILE *f = File[Input];
 	register int c;			/* char may not hold EOF */
@@ -662,7 +675,8 @@ int Get()
     }
 
 
-int ToEOL()
+int 
+ToEOL (void)
     {
 	register int d, c;
     
@@ -678,8 +692,8 @@ int ToEOL()
     }
 
 
-int CurLineNo(file)
-    register ATOMP file;
+int 
+CurLineNo (register ATOMP file)
     {
 	register int i = MaxFile;
 	while (--i >= 0 && (FileLine[i] <= 0 || FileAtom[i] != file)) ;
@@ -687,7 +701,8 @@ int CurLineNo(file)
     }
 
 
- void Interrupt()
+ void 
+Interrupt (void)
     {
 #if FOLD
 	if (TtyLeft != TtyWidth) {
@@ -742,8 +757,8 @@ cont:
     file can be read or written, just that it is there.
 */
 
-int Exists(title)
-    char *title;
+int 
+Exists (char *title)
     {
 	return access(title, 0) == 0;
     }
@@ -755,8 +770,8 @@ int Exists(title)
     is no reason to expect the operating system to do so as well.
 */
 
-void Rename(oldname, newname)
-    char *oldname, *newname;
+void 
+Rename (char *oldname, char *newname)
     {
 	int r;
 	if ((r = link(oldname, newname)) == 0 && (r = unlink(oldname)) != 0)
@@ -765,8 +780,8 @@ void Rename(oldname, newname)
     }
 
 
-void Remove(title)
-    char *title;
+void 
+Remove (char *title)
     {
 	if (unlink(title) != 0) IOError();
     }
@@ -777,8 +792,8 @@ void Remove(title)
     something similar, so there may be a way of implementing ChDir even
     in that antique.  {VMS: Software for the Sixties!}
 */
-int ChDir(newdir)
-    char *newdir;
+int 
+ChDir (char *newdir)
     {
 	extern int chdir();
 	return chdir(newdir) == 0;
@@ -795,8 +810,8 @@ int ChDir(newdir)
     guaranteed to take you into the one you normally use.
 */
 
-int CallShell(command)
-    char *command;
+int 
+CallShell (char *command)
     {
 	int status = -1;		/* child's termination+exit status */
 	int child = fork();		/* child's process id */
@@ -846,7 +861,8 @@ int CallShell(command)
 #define	DatAlign	1024
 
 
-void CreateStacks()
+void 
+CreateStacks (void)
     {
 	register char *r;	/* char* is the UNIX convention		*/
 	register ProLong i, s;
@@ -883,7 +899,8 @@ void CreateStacks()
 */
 #define Hz	60.0
 
-double CpuTime()
+double 
+CpuTime (void)
 {
   return 0;
 }

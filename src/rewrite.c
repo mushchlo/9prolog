@@ -78,10 +78,8 @@ enum { PREFIX, INFIX, POSTFIX };
     set to the first remaining character, no change if rejected.
     This function is used here and in name/2
 */
-int NumberString(s, p, free)
-    char **s;
-    PTR *p;
-    int free;
+int 
+NumberString (char **s, PTR *p, int free)
     {
 	register char *t = *s;
 	char c; double d; ProLong i;
@@ -113,16 +111,16 @@ int NumberString(s, p, free)
     should be a lower-case letter, but afterwards it should be a symbol,
     and wasn't.  Testing InBoot is insufficient.
 */
-int GetChType(ch)
-    register int ch;
+int 
+GetChType (register int ch)
     {
 	if (ch >= 0 && ch <= 127) return chtyp[ch];
 	ErrorMess = "! chtype(C,_,_): C must be 0..127";
 	return -1;
     }
 
-int SetChType(ch, type)
-    register int ch, type;
+int 
+SetChType (register int ch, register int type)
     {
 	if (type < 1 || type > 10) {
 	    ErrorMess = "! chtype(_,_,T): T must be 1..10";
@@ -152,9 +150,8 @@ int SetChType(ch, type)
     With it, it comes out as + + (+) which we can read back.
 */
 
-int isop(atom, optype, p, lp, rp)
-    ATOMP atom;
-    int optype, *p, *lp, *rp;
+int 
+isop (ATOMP atom, int optype, int *p, int *lp, int *rp)
     {
 	register int oe, pr;
 
@@ -171,9 +168,8 @@ int isop(atom, optype, p, lp, rp)
 	return TRUE;
     }
 
- int maxprio(atom, priority)
-    register ATOMP atom;
-    register int priority;
+ int 
+maxprio (register ATOMP atom, register int priority)
     {
 	return (atom->prfxofae & mskprty) > priority
 	||     (atom->infxofae & mskprty) > priority
@@ -191,9 +187,12 @@ int isop(atom, optype, p, lp, rp)
 		 {"fy",		PREFIX,  0 },
     };
 
-int op(prio, optype, spec)	/*  process an 'op' declaration  */
-    PTR prio, optype;
-    register PTR spec;
+int 
+op (	/*  process an 'op' declaration  */
+    PTR prio,
+    PTR optype,
+    register PTR spec
+)
     {
 	register int pr;	/* priority|mask */
 	register PTR at;	/* atom to declare */
@@ -235,8 +234,10 @@ int op(prio, optype, spec)	/*  process an 'op' declaration  */
     }
 
 
- void PutAtom(at)			/* print an atom, quoted if necessary  */
-    ATOMP at;
+ void 
+PutAtom (			/* print an atom, quoted if necessary  */
+    ATOMP at
+)
     {
 	if (quoteia) {
 	    register char *s = at->stofae;
@@ -281,8 +282,8 @@ QUOTED:
     is alphabetic.  IT CAN BE FOOLED, but extra spaces are ok.
     The entire business of spacing needs to be revised.
 */
-void spaceout(a)
-    ATOMP a;
+void 
+spaceout (ATOMP a)
     {
 	if (chtyp[a->stofae[0]] == LC) Put(' ');
     }
@@ -291,8 +292,8 @@ void spaceout(a)
 /*  num2chars(k)
     prints k in a suitable numeric format in OutBuf
 */
-char *num2chars(k)
-    PTR k;
+char *
+num2chars (PTR k)
     {
 	if IsInt(k)
 	    Ignore sprint(OutBuf, "%ld", XtrInt(k));
@@ -309,10 +310,12 @@ char *num2chars(k)
     NB: it can happen that the term contains LOCAL variables.
     If so, the variable X is assumed to point to the local frame.
 */
-void ProPWrite(term, frame, priority)
-    register PTR term;		/*  term to be printed  */
-    PTR frame;			/*  its global frame  */
-    register int priority;	/*  of its context  */
+void 
+ProPWrite (
+    register PTR term,		/*  term to be printed  */
+    PTR frame,			/*  its global frame  */
+    register int priority	/*  of its context  */
+)
     {
 	FUNCTORP fn;		/*  principal functor  */
 	ATOMP at;		/*  its atom  */
@@ -461,8 +464,8 @@ typedef struct var_dict_entry
 
 /*  Look up a variable name in the variable table.  */
 
- PTR lookupvar(id)
-    char *id;
+ PTR 
+lookupvar (char *id)
     {
 	register PTR var;
 
@@ -485,7 +488,8 @@ typedef struct var_dict_entry
 
 /*  report a syntax error and wind things up */
 
- void SyntaxError()
+ void 
+SyntaxError (void)
     {
 	register char *p;
 	SyntErrPos();
@@ -499,7 +503,8 @@ typedef struct var_dict_entry
 
 /*  token - tokeniser */
 
- int token()
+ int 
+token (void)
     {
 	register int k, ch;
 	register char *l = nam;
@@ -605,8 +610,8 @@ id:		 		/* common to variables and atoms */
 
 /*  readargs - parse arguments of a term */
 
- PTR readargs(atom)
-    ATOMP atom;
+ PTR 
+readargs (ATOMP atom)
     {
 	PTR *savelsp = lsp;
 	int arity;
@@ -622,7 +627,8 @@ id:		 		/* common to variables and atoms */
 
 /*  stringtolist - string to list of chars */
 
- PTR stringtolist()
+ PTR 
+stringtolist (void)
     {
 	PTR *savelsp = lsp;
 	register int/*char*/ ch;
@@ -637,7 +643,8 @@ id:		 		/* common to variables and atoms */
 
 /*  readlist - parse a prolog list */
 
- PTR readlist()
+ PTR 
+readlist (void)
     {
 	PTR *savelsp = lsp;
 	ProLong n;
@@ -658,8 +665,11 @@ id:		 		/* common to variables and atoms */
     inspect the next token to determine whether it must be taken as an
     atom despite this.  One token of lookahead doesn't seem to be enough.
 */
- int prefix_is_atom(n, m)
-    int n, m;		/* context, prefix priority */
+ int 
+prefix_is_atom (
+    int n,
+    int m		/* context, prefix priority */
+)
     {
 	int o, l, r;
 
@@ -688,8 +698,8 @@ id:		 		/* common to variables and atoms */
 
 /* term - parse token stream to get term */
 
- PTR term(n)
-    register int n;
+ PTR 
+term (register int n)
     {
 	register int m;
 	int  mO, mL, mR;
@@ -817,8 +827,8 @@ on:
     workspace to hold the text of the term and its pointers.
 */
 
-PTR ProPRead(names)
-    PTR *names;
+PTR 
+ProPRead (PTR *names)
     {
 	char*lsz;
 	PTR *savelsp;

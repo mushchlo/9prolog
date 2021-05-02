@@ -42,8 +42,8 @@
     no need to do the masking at all.
 */
 
-int gunify(ta, ga, tb, gb)
-    PTR ta, ga, tb, gb;
+int 
+gunify (PTR ta, PTR ga, PTR tb, PTR gb)
 {
 	int arity;
 	register PTR a, b, pa, pb;
@@ -202,9 +202,8 @@ start:
     global).  The term is usually atomic.
 */
 
-int unifyarg(arg, term, frame)
-    register PTR arg, term;
-    PTR frame;
+int 
+unifyarg (register PTR arg, register PTR term, PTR frame)
     {
 	register PTR argval;
 	DeclRegisters
@@ -245,9 +244,8 @@ int unifyarg(arg, term, frame)
     }
 
 
-PTR vvalue(var, framev)
-    register PTR var;
-    PTR *framev;
+PTR 
+vvalue (register PTR var, PTR *framev)
     {
 	register PTR dereffed;
 	while (IsRef(dereffed = VarVal(var))) var = dereffed;
@@ -271,9 +269,8 @@ PTR vvalue(var, framev)
     either doing this already or didn't care.
 */
 
-PTR arg(a, frame)
-    register PTR a;
-    PTR frame;
+PTR 
+arg (register PTR a, PTR frame)
     {
 	register PTR p;
 
@@ -292,9 +289,8 @@ PTR arg(a, frame)
     }
 
 
-PTR argv(a, frame, af)
-    register PTR a;
-    PTR frame, *af;
+PTR 
+argv (register PTR a, PTR frame, PTR *af)
     {
 	register PTR p;
 

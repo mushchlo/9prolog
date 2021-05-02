@@ -46,8 +46,8 @@
     skeletons, and update reference counts or clauses and records pointed to
     by those skeletons, possibly causing recursive calls to dispose.
 */
- void dispose(clause)
-    register CLAUSEP clause;
+ void 
+dispose (register CLAUSEP clause)
     {
 	freeskel(clause->bdyofcl);
 	freeskel(clause->hdofcl);
@@ -58,8 +58,8 @@
 /*  Release the space occupied by a skeleton.  It does no harm to call
     freeskel(NullP), as IsAtomic(NullP) happens to be true!
 */
- void freeskel(term)
-    register PTR term;
+ void 
+freeskel (register PTR term)
     {
 	if (IsDBRef(term)) {
 	    register CLAUSEP clause = XtrDBRef(term);
@@ -97,8 +97,8 @@
     a special UNCHAINED value, so I use null for that purpose.
 */
 
- void unchain(ref)
-    PTR ref;
+ void 
+unchain (PTR ref)
     {
 	register CLAUSEP clause;	/* the clause to erase */
 	register CLAUSEP *hd;		/* the header of the clause chain */
@@ -136,8 +136,8 @@
     check for us.  If the object is idle at this point, we can dispose
     of it.
 */
-void hide(ref)
-    PTR ref;
+void 
+hide (PTR ref)
     {
 	register CLAUSEP clause = XtrDBRef(ref);
 
@@ -149,8 +149,8 @@ void hide(ref)
 
 /*  Test whether a clause has been erased  */
 
-int erased(ref)
-    PTR ref;
+int 
+erased (PTR ref)
     {
 	if (!IsDBRef(ref)) {
 	    ErrorMess = "! erased: argument is not a reference";
@@ -162,8 +162,8 @@ int erased(ref)
 
 /*  Erase the term pointed to by the reference ref  */
 
-int erase(ref)
-    register PTR ref;
+int 
+erase (register PTR ref)
     {
 	register CLAUSEP clause;	/* the clause to erase */
 
@@ -196,9 +196,8 @@ int erase(ref)
 /*  Copy a dynamic term, represented by a (Skel,Env) pair (t,frame) into
     the heap.   One of the effects is to rename the variables in the copy.
 */
- PTR termtoheap(t, frame)
-    register PTR t;
-    PTR frame;
+ PTR 
+termtoheap (register PTR t, PTR frame)
     {
 	if (IsAtomic(t)) {
 	    if (IsPrim(t) && level == 0) intgoal |= onhead ? OnHead : OnBody;
@@ -253,9 +252,8 @@ found_var:
 
 /*  Copy the body of a clause onto the heap  */
 
- PTR bodytoheap(t, frame)
-    register PTR t;
-    PTR frame;
+ PTR 
+bodytoheap (register PTR t, PTR frame)
     {
 	if (IsAtomic(t) || IsUnbound(t)) return termtoheap(t, frame);
 	if (IsRef(t)) frame = MolP(t)->Env, t = MolP(t)->Sk;
@@ -281,8 +279,8 @@ found_var:
     really in the database.  This eliminates yet another bug!
 */
 
- void scan(c)
-    PTR *c;
+ void 
+scan (PTR *c)
     {
 	register PTR t = *c;
 
@@ -310,9 +308,8 @@ found_var:
     though wrong, will be well-formed, I find this acceptable. 'unchain'
     has the necessary code in a critical region, so this has none.
 */
-void abolish(fn, UserCall)
-    register FUNCTORP fn;
-    int UserCall;
+void 
+abolish (register FUNCTORP fn, int UserCall)
     {
 	if (!UserCall) {
 	    register PTR seen = vra;
@@ -343,10 +340,8 @@ void abolish(fn, UserCall)
     go at the beginning (aorz) = TRUE or end (aorz) = FALSE 
     of the appropriate chain.  Intermediate positions are out.
 */
-PTR record(key, t, rk, aorz)
-    PTR t, rk;    
-	ProLong key;
-    ProInt aorz;
+PTR 
+record (ProLong key, PTR t, PTR rk, ProInt aorz)
 {
 	PTR head, body, g;
 	register FUNCTOR *fn;
@@ -477,8 +472,8 @@ errorexit:	freeskel(head);
     global variables X, v1, and tr.  They are only called in evalp.c.
 */
 
-PTR recorded(key)
-	ProLong key;
+PTR 
+recorded (ProLong key)
     {
 	register FRAMEP rX = Regs_X;
 	register CLAUSEP clause = ClauseP(*(rX->v4ofcf));
@@ -512,9 +507,8 @@ PTR recorded(key)
     }
 
 
- PTR globalise(t, bodyflg)
-    register PTR t;
- 	ProInt bodyflg;
+ PTR 
+globalise (register PTR t, ProInt bodyflg)
     {
 	if (IsAtomic(t)) {
 	    return t;
@@ -559,8 +553,8 @@ PTR recorded(key)
     local variables) and bind that to the variable argp points to.  This
     implements the Prolog predicate instance/2.
 */
-int instance(ref, argp)
-    PTR ref, argp;
+int 
+instance (PTR ref, PTR argp)
     {
 	register CLAUSEP cl;
 

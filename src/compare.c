@@ -112,7 +112,8 @@ start:
     finds either term too short, it returns NullP, otherwise < = or >.
 */
 
-ProLong icompare()
+ProLong 
+icompare (void)
     {
 	PTR E1 = NullP;
 	PTR T1 = vvalue(Addr(Regs_X->v1ofcf), &E1);
@@ -122,7 +123,8 @@ ProLong icompare()
     }
 
 
-ATOMP acompare()
+ATOMP 
+acompare (void)
     {
 	PTR E1 = NullP;
 	PTR T1 = vvalue(Addr(Regs_X->v2ofcf), &E1);
@@ -133,10 +135,14 @@ ATOMP acompare()
     }
 
 
-ATOMP kcompare(T1,E1, T2,E2, n)
-    register PTR T1, T2;	/* pointers to skeletons */
-    PTR E1, E2;			/* pointers to global frames */
-    register int n;		/* argument number (> 0) */
+ATOMP 
+kcompare (
+    register PTR T1,
+    PTR E1,
+    register PTR T2,	/* pointers to skeletons */
+    PTR E2,			/* pointers to global frames */
+    register int n		/* argument number (> 0) */
+)
     {
 	if (SkelFuncP(T1)->arityoffe < n
 	||  SkelFuncP(T2)->arityoffe < n) return AtomP(0);

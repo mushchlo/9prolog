@@ -97,8 +97,8 @@ char		/*  default file names */
 #define		UserHome     getenv("HOME")
 
 
- int numval(q)
-    char **q;
+ int 
+numval (char **q)
     {
 	register char *p = *q;
 	register int n = 0;
@@ -111,9 +111,8 @@ char		/*  default file names */
     }
 
 
- int findch(c, s)
-    register int c;
-    register char *s;
+ int 
+findch (register int c, register char *s)
     {
 	register int n = 0;
 	c |= 32;		/* force lower case */
@@ -122,9 +121,8 @@ char		/*  default file names */
     }
 
 
-char *crack(argc, argv)
-    int argc;
-    char **argv;
+char *
+crack (int argc, char **argv)
     {
 	extern char *index();			/* see string(3) in Unix manual */
 	char *which_file = NullS;

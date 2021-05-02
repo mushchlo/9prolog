@@ -48,8 +48,8 @@
     I debugged and developed the system, and it hasn't harmed any users.
 */
 
-ATOMP lookup(id)
-    char *id;
+ATOMP 
+lookup (char *id)
     {
 	register ATOMP *ptr, atm;
 	{
@@ -93,9 +93,8 @@ ATOMP lookup(id)
     are laid out as similarly as possible, so the caller never cares.
 */
 
-FUNCTORP fentry(atom, arity)
-    ATOMP atom;
-    int arity;
+FUNCTORP 
+fentry (ATOMP atom, int arity)
     {
 	register FUNCTORP old, new;
 
@@ -130,10 +129,8 @@ FUNCTORP fentry(atom, arity)
     work for arity == 0, and is unnecessary in that case anyway.
 */
 
-PTR apply(atom, arity, args)
-    ATOMP atom;
-    register int arity;
-    register PTR *args;
+PTR 
+apply (ATOMP atom, register int arity, register PTR *args)
     {
 	PTR skeleton = Addr(fentry(atom, arity)->gtoffe);
 	register PTR result = Regs_v1;
@@ -150,9 +147,8 @@ PTR apply(atom, arity, args)
     The counter n includes the final nil.
 */
 
-PTR makelist(n, elements)
-    register ProLong n;
-    register PTR *elements;
+PTR 
+makelist (register ProLong n, register PTR *elements)
     {
 	register int i;
 	register PTR *r, f;
@@ -170,10 +166,8 @@ PTR makelist(n, elements)
     }
 
 
-int list_to_string(list, s, n)
-    register PTR list;
-    register char *s;
-    int n;
+int 
+list_to_string (register PTR list, register char *s, int n)
     {
 	register PTR a;
 	PTR env;		/* can't be a register because &env used */
@@ -207,9 +201,8 @@ int list_to_string(list, s, n)
     clause_number we've already extracted the goal, so why bother?
 */
 
-int clause_number(frame, goal)
-    FRAMEP frame;
-    PTR goal;
+int 
+clause_number (FRAMEP frame, PTR goal)
     {
 	register CLAUSEP d, *n, *o;
 	CLAUSEP *f = frame->altofcf;
@@ -232,7 +225,8 @@ int clause_number(frame, goal)
     either X is already right (which is the case in the debugger), or else the
     term is guaranteed not to contain any local variables (everywhere else).
 */
-void backtrace()
+void 
+backtrace (void)
     {
 	register FRAMEP frame;
 	FRAMEP saveX = Regs_X;
@@ -264,7 +258,8 @@ void backtrace()
     }
 
 
-void Statistics()
+void 
+Statistics (void)
     {
 	int area;
 	ProLong used;

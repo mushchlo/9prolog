@@ -57,7 +57,8 @@ ProLong HeapHeader = sizeof Heap;
 #define Bottom		heap0
 #define FreeMisc	Heap.free[CHAINS]
 
-void InitHeap()
+void 
+InitHeap (void)
     /* Initialize space tables.  Do it only once. */
     {
 	register int i = CHAINS+1;
@@ -71,8 +72,8 @@ void InitHeap()
 
 enum { NOOVERLAP, SAME, OVERLAP };
 
- int overlap(a, b)
-    register PTR a, b;
+ int 
+overlap (register PTR a, register PTR b)
     /* Check for overlap of space in error checking version */
     {
 	register BlockP n;
@@ -89,9 +90,8 @@ enum { NOOVERLAP, SAME, OVERLAP };
 #endif	ERRCHECK
 
 
-void release(Base, size)
-    PTR Base;
-    register int size;
+void 
+release (PTR Base, register int size)
     {
 	register BlockP base = (BlockP)Base;
 	register BlockP *list;
@@ -119,7 +119,8 @@ void release(Base, size)
     }
 
 
- void CollectGarbage()
+ void 
+CollectGarbage (void)
     /* The garbage collection driver */
     /* NB: it is really just a free-list compactor; it does not reclaim */
     /* space on the stacks.  Heap space is reference counted.  */
@@ -221,8 +222,8 @@ void release(Base, size)
     allocate more than 32k *words* at a time, change 'int'->'long'.
     Change too the argument of release, and the BlockSize field.
 */
-PTR getsp(size)
-    register int size;
+PTR 
+getsp (register int size)
     {
 	int gc = 2;
 	register PTR result;
@@ -304,8 +305,8 @@ found:
     }
 
 
-void RelocHeap(delta)
-    register ProLong delta;
+void 
+RelocHeap (register ProLong delta)
     /*  Relocates the free space chains.  */
     /*  The actual free space has already been moved.  */
     /*  heap0 (== Bottom) has been updated already.  */
@@ -325,13 +326,15 @@ void RelocHeap(delta)
     }
 
 
-ProLong HeapUsed()
+ProLong 
+HeapUsed (void)
     {
 	return Heap.used;
     }
 
 
-PTR HeapTop()
+PTR 
+HeapTop (void)
     {
 	return Heap.top;
     }
@@ -361,15 +364,15 @@ char *malloc(size)
     }
 
 
-char *calloc(nelem, elsize)
-    unsigned ProLong nelem, elsize;
+char *
+calloc (unsigned ProLong nelem, unsigned ProLong elsize)
     {
 	return malloc(nelem*elsize);
     }
 
 
-free(ptr)
-    PTR ptr;
+int 
+free (PTR ptr)
     {
 	release(ptr, ptr[-1]);
     }
@@ -382,9 +385,8 @@ free(ptr)
     the multiplication by 4 has to be done somewhere.
 */
 
-ClearMem(loc, num)
-    PTR *loc;
-	ProLong num;
+int 
+ClearMem (PTR *loc, ProLong num)
     {
 #if	ASM
 	asm(" ashl $2,8(ap),r0 ");
@@ -398,9 +400,8 @@ ClearMem(loc, num)
     }
 
 
-CopyMem(from, to, num)
-    char *from, *to;
-	ProLong num;
+int 
+CopyMem (char *from, char *to, ProLong num)
     {
 #if	ASM
 	asm(" movc3 12(ap),*4(ap),*8(ap) ");
@@ -419,9 +420,8 @@ CopyMem(from, to, num)
     }
 
 
-char *realloc(ptr, size)
-    register PTR ptr;
-    unsigned ProLong size;
+char *
+realloc (register PTR ptr, unsigned ProLong size)
     {
 	register ProULong new = Words(size), old = ptr[-1]-1;
         

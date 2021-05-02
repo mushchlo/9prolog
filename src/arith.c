@@ -35,8 +35,8 @@ void ArithError(s)		/* also called by FPE trap in sysbits.c */
     }
 
 
- void NotInt(fn)
-    FUNCTORP fn;
+ void 
+NotInt (FUNCTORP fn)
     {
 	Ignore sprint(OutBuf, "the arguments of '%s'/%d must be integers",
 		fn->atoffe->stofae, fn->arityoffe);
@@ -44,8 +44,8 @@ void ArithError(s)		/* also called by FPE trap in sysbits.c */
     }
 
 
- void NotOp(fn)
-    FUNCTORP fn;
+ void 
+NotOp (FUNCTORP fn)
     {
 	if (fn->arityoffe == 0)
 	    Ignore sprint(OutBuf, "%s is not a number", fn->atoffe->stofae);
@@ -56,7 +56,8 @@ void ArithError(s)		/* also called by FPE trap in sysbits.c */
     }
 
 
- double ffail()
+ double 
+ffail (void)
  {
 	ArithError("internal error - undefined operator");
 	return 0.0;
@@ -161,9 +162,11 @@ typedef struct Value
 Value reg;			/* the value "register" */
 
 
-int Narrow(f, i)		/* also used in rewrite.c */
-    double f;
-	ProLong *i;
+int 
+Narrow (		/* also used in rewrite.c */
+    double f,
+    ProLong *i
+)
     {
 	if (f < MinInt || f > MaxInt || (ProLong)f != f) return FALSE;
 	*i = (ProLong)f;
@@ -171,8 +174,8 @@ int Narrow(f, i)		/* also used in rewrite.c */
     }
 
 
- int ForceInt(val)
-    register Value *val;
+ int 
+ForceInt (register Value *val)
     {
 	if (val->Float) {
 	    if (val->AsFloat < MinInt || val->AsFloat > MaxInt ||
@@ -192,9 +195,8 @@ int Narrow(f, i)		/* also used in rewrite.c */
     compilers lack that facility, and this method is in fact faster  and
     less store-hungry.
 */
- void eval(t, frame)
-    register PTR t;
-    PTR frame;
+ void 
+eval (register PTR t, PTR frame)
     {
 	register int typ;
 	int op, fl;
@@ -355,8 +357,8 @@ int Narrow(f, i)		/* also used in rewrite.c */
     }
 
 
-ProLong intval(p)
-    PTR p;
+ProLong 
+intval (PTR p)
     /*	Evaluates an expression as an integer, and causes an event  */
     /*	if the resulting value is not an integer.  */
     {
@@ -370,8 +372,8 @@ ProLong intval(p)
     }
 
 
-PTR numeval(p)
-    PTR p;
+PTR 
+numeval (PTR p)
     /* Evaluates expression p and returns a number representation */
     {
 	PTR e;
@@ -383,9 +385,8 @@ PTR numeval(p)
     }
 
 
-int numcompare(op, t1, t2)
-    int op;
-    PTR t1, t2;
+int 
+numcompare (int op, PTR t1, PTR t2)
     /* Applies comparison operation op to expressions t1 and t2 */
     {
 	PTR argSkel, argEnv;
@@ -442,8 +443,8 @@ typedef union Mixed {
     }   Mixed;
 
 
-PTR ConsFloat(f)
-    float f;
+PTR 
+ConsFloat (double f)
     {
 	Mixed m;
 
@@ -452,8 +453,8 @@ PTR ConsFloat(f)
     }
 
 
-float XtrFloat(p)
-    PTR p;
+float 
+XtrFloat (PTR p)
     {
 	Mixed m;
 

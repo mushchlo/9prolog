@@ -144,8 +144,8 @@ enum { CALL_PORT, EXIT_PORT, BACK_PORT, FAIL_PORT };
 
 
 #if	debugging
- void DumpVars(message)
-    char *message;
+ void 
+DumpVars (char *message)
 {
 	ProError("bb\t%d\tbrklev\t%d\tbrtn\t%d\tdebug\t%d\n", bb, brklev, brtn, debug);
 	ProError("dotrace\t%d\tinvokno\t%d\tlc\t%d\tlev\t%d\n", dotrace, invokno, lc, lev);
@@ -161,22 +161,27 @@ enum { CALL_PORT, EXIT_PORT, BACK_PORT, FAIL_PORT };
 #define DumpVars(x)
 #endif	debugging
 
-void savev(p, n)
-    register PTR *p;		/* starting at p */
-    register int  n;		/* save n vars   */
+void 
+savev (
+    register PTR *p,		/* starting at p */
+    register int n		/* save n vars   */
+)
 {
 	while (--n >= 0) *savead++ = *p++;
 }
 
-void restv(p, n)
-    register PTR *p;		/* starting at p */
-    register int n;		/* restore n vars */
+void 
+restv (
+    register PTR *p,		/* starting at p */
+    register int n		/* restore n vars */
+)
 {
 	while (--n >= 0) *p++ = *savead++;
 }
 
 
-void savevars()		/*  to enter a break */
+void 
+savevars (void)		/*  to enter a break */
 {
 	PTR nbrkp;
 	register int **pi;
@@ -192,7 +197,8 @@ void savevars()		/*  to enter a break */
 	DumpVars("After Save");
 }
 
-void restvars()	/*  to continue from a break */
+void 
+restvars (void)	/*  to continue from a break */
 {
 	register int **pi;
 	register PTR **pp;
@@ -240,7 +246,8 @@ ProLong	LArea[NAreas+1];	/* length of area */
 #define Llcl	LArea[LocalId]
 #define Lsavep	LArea[NAreas]
 
-void save()	/*  save current prolog state */
+void 
+save (void)	/*  save current prolog state */
 {
 	FILE *fa;
 	int ferr;
@@ -357,8 +364,8 @@ void save()	/*  save current prolog state */
     It can only be a primitive, an atom, or a pointer to a skeleton.
 */
 
-void remap(tp)
-    register PTR *tp;
+void 
+remap (register PTR *tp)
 {
 	register PTR t = *tp;
 
@@ -376,8 +383,8 @@ void remap(tp)
 }
 
 
-int restore(sfile)
-    char *sfile;
+int 
+restore (char *sfile)
 {
 	FILE *fa;
 #define Fread(var,sz,len,fl) Ignore fread(CharP(var),sz,len,fl)
@@ -550,7 +557,8 @@ int restore(sfile)
 |									|
 +----------------------------------------------------------------------*/
 
-void ResetTrail()
+void 
+ResetTrail (void)
 {
 	register PTR *a = CellP(tr0);
 	register PTR *b = CellP(Regs_tr);
@@ -571,7 +579,8 @@ void ResetTrail()
 }
 
 
- PTR bread()
+ PTR 
+bread (void)
     /*  read initialization terms */
 {
 	PTR r;
@@ -584,8 +593,10 @@ void ResetTrail()
 }
 
 
-void Halt(why)
-    int why;		/* 0->eval pred, 1->debug, 2->interrupt */
+void 
+Halt (
+    int why		/* 0->eval pred, 1->debug, 2->interrupt */
+)
 {
 #if	COUNTING
 	int epno;
@@ -620,10 +631,8 @@ void Halt(why)
 |	predicates.  The latter are in their own file.			|
 |									|
 +----------------------------------------------------------------------*/
-int
-main(ArgC, ArgV)
-    int ArgC;
-    char *ArgV[];
+int 
+main (int ArgC, char *ArgV[])
     {
 	FUNCTORP f;		/* the functor of the current goal (CALL only) */
 	int PredNo;		/* index of evaluable predicate */
