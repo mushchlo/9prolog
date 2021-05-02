@@ -18,7 +18,6 @@
 
 #include <u.h>
 #include <libc.h>
-#include <stdint.h>
 
 //#define COUNTING 1
 
@@ -56,27 +55,15 @@
     are then cast into the appopriate types.
 */
 
-#ifdef PRO_X64
-	typedef int64_t ProInt;
-	typedef uint64_t ProUInt;
-	typedef int64_t ProLong;
-	typedef uint64_t ProULong;
+typedef vlong ProInt;
+typedef uvlong ProUInt;
+typedef vlong ProLong;
+typedef uvlong ProULong;
 
-	typedef uint64_t **PTR;	/* anonymous pointers */
-	typedef unsigned char byte;	/* used for small counts */
+typedef uvlong **PTR;	/* anonymous pointers */
+typedef uchar byte;	/* used for small counts */
 
-	#define ProVarNumberMask 0xffffffffffff
-#else
-	typedef int32_t ProInt;
-	typedef uint32_t ProUInt;
-	typedef int32_t ProLong;
-	typedef uint32_t ProULong;
-
-	typedef uint32_t **PTR;	/* anonymous pointers */
-	typedef unsigned char byte;	/* used for small counts */
-
-	#define ProVarNumberMask 0xffff
-#endif
+#define ProVarNumberMask 0xffffffffffff
 
 /*  Typed pointers  */
 
