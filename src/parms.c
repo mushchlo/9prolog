@@ -172,7 +172,7 @@ char *crack(argc, argv)
 	    State[QUIET] = TRUE;
 	    if (which_file == NullS) {
 	    	State[QUIET] = FALSE;
-	    	sprintf(OutBuf, UserFile, UserHome);
+	    	sprint(OutBuf, UserFile, UserHome);
 	    	if (Exists(OutBuf)) {
 	    		which_file = OutBuf;
 	    	} else {
@@ -180,7 +180,7 @@ char *crack(argc, argv)
 	    	}
 	    }
 	    if (!Exists(which_file)) {
-	    	sprintf(OutBuf, SavedFmt, which_file);
+	    	sprint(OutBuf, SavedFmt, which_file);
 	    	if (*which_file == '/' || !Exists(OutBuf)) {
 	    		ProError("! Saved state %s does not exist.\n", which_file);
 	    		exit(1);

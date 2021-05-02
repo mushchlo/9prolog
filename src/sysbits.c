@@ -186,7 +186,7 @@ void Event(n)
 void NoSpace(s)
     int s;
     {
-	Ignore sprintf(OutBuf, "\n! Out of %s during execution.\n",
+	Ignore sprint(OutBuf, "\n! Out of %s during execution.\n",
 	    s >= 0 && s < NAreas ?  AreaName[s] : "?space?");
 	ErrorMess = OutBuf;
 	Event(GEN_ERROR);
@@ -365,7 +365,7 @@ int ProMessage(const char *fmt, ...)
 	int ret_status = 0;
     va_list args;
     va_start(args, fmt);
-    ret_status = vfprintf(stdout, fmt, args);
+    ret_status = vfprint(stdout, fmt, args);
     va_end(args);
     fflush(stdout);
     return ret_status;
@@ -376,7 +376,7 @@ int ProError(const char *fmt, ...)
 	int ret_status = 0;
     va_list args;
     va_start(args, fmt);
-    ret_status = vfprintf(stderr, fmt, args);
+    ret_status = vfprint(stderr, fmt, args);
     va_end(args);
     fflush(stderr);
     return ret_status;

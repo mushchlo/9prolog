@@ -253,7 +253,7 @@ void backtrace()
 		} else {
 		    env = Regs_X->gsofcf;
 		}
-		Ignore sprintf(OutBuf, "%3d (%3ld) %2d: ",
+		Ignore sprint(OutBuf, "%3d (%3ld) %2d: ",
 		    --depth, (frame->infofcf>>LEVEL_WIDTH) & CALL_NUMBER,
 		    clause_number(frame, goal));
 		PutString(OutBuf);

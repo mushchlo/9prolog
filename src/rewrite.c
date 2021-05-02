@@ -295,11 +295,11 @@ char *num2chars(k)
     PTR k;
     {
 	if IsInt(k)
-	    Ignore sprintf(OutBuf, "%ld", XtrInt(k));
+	    Ignore sprint(OutBuf, "%ld", XtrInt(k));
 	else if IsFloat(k)
-	    Ignore sprintf(OutBuf, "%.5g", XtrFloat(k));	/* WAS %f */
+	    Ignore sprint(OutBuf, "%.5g", XtrFloat(k));	/* WAS %f */
 	else
-	    Ignore sprintf(OutBuf, "#<%lx>", Unsigned(k));
+	    Ignore sprint(OutBuf, "#<%lx>", Unsigned(k));
 	return OutBuf;
     }
 
@@ -334,8 +334,8 @@ void ProPWrite(term, frame, priority)
 	    return;
 	}
 	if (IsUnbound(term)) {
-	    if (term >= lcl0) Ignore sprintf(OutBuf, "L%ld", Unsigned(term-lcl0));
-	    else Ignore sprintf(OutBuf, "_%ld", Unsigned(term-glb0));
+	    if (term >= lcl0) Ignore sprint(OutBuf, "L%ld", Unsigned(term-lcl0));
+	    else Ignore sprint(OutBuf, "_%ld", Unsigned(term-glb0));
 	    PutString(OutBuf);
 	    return;
 	}
@@ -872,7 +872,7 @@ char_read:
 
 		*lpmax++ = ch = Get();
 		if (lpmax[-3] == '0') {
-		    sprintf(lpmax-3, "%3d", ch);
+		    sprint(lpmax-3, "%3d", ch);
 		    chtype = N;
 		} else
 		if (chtyp[ch] == N && chtyp[lpmax[-3]] == N) {

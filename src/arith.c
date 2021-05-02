@@ -38,7 +38,7 @@ void ArithError(s)		/* also called by FPE trap in sysbits.c */
  void NotInt(fn)
     FUNCTORP fn;
     {
-	Ignore sprintf(OutBuf, "the arguments of '%s'/%d must be integers",
+	Ignore sprint(OutBuf, "the arguments of '%s'/%d must be integers",
 		fn->atoffe->stofae, fn->arityoffe);
 	ArithError(OutBuf);
     }
@@ -48,9 +48,9 @@ void ArithError(s)		/* also called by FPE trap in sysbits.c */
     FUNCTORP fn;
     {
 	if (fn->arityoffe == 0)
-	    Ignore sprintf(OutBuf, "%s is not a number", fn->atoffe->stofae);
+	    Ignore sprint(OutBuf, "%s is not a number", fn->atoffe->stofae);
 	else
-	    Ignore sprintf(OutBuf, "%s/%d is not an arithmetic function",
+	    Ignore sprint(OutBuf, "%s/%d is not an arithmetic function",
 		fn->atoffe->stofae, fn->arityoffe);
 	ArithError(OutBuf);
     }

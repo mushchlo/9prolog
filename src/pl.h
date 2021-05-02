@@ -862,7 +862,7 @@ extern const char *SysError();
 extern char
 	*AtomToFile(), *crack(), *num2chars();
 	/* UNIX functions: */
-//	*getenv(), *sprintf(), *strcpy();
+//	*getenv(), *sprint(), *strcpy();
 
 // info
 void ProPrintAtom(char *a_buf, ATOMP a_atom);

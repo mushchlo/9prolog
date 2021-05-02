@@ -395,7 +395,7 @@ int restore(sfile)
 	    char magic[80];
 	    Fread(magic, strlen(savemagic)+1, 1, fa);
 	    if (strcmp(magic, savemagic) != 0) {
-		Ignore sprintf(ErrorMess = OutBuf,
+		Ignore sprint(ErrorMess = OutBuf,
 		    "! File %s is not a saved Prolog state", sfile);
 		return FALSE;
 	    }
@@ -405,7 +405,7 @@ int restore(sfile)
 	    int version;
 	    Fread(&version, sizeof version, 1, fa);
 	    if (version != saveversion) {
-		Ignore sprintf(ErrorMess = OutBuf,
+		Ignore sprint(ErrorMess = OutBuf,
 		    "! File %s is not compatible with this version of Prolog",
 		    sfile);
 		return FALSE;
@@ -831,7 +831,7 @@ CALL:
 
 #if	COUNTING
 	portct[CALL_PORT]++;
-	fprintf(trace_file, "%ld %ld %ld %ld\n", Regs_v-lcl0, Regs_v1-glb0, Regs_x-lcl0, Regs_x1-glb0);
+	fprint(trace_file, "%ld %ld %ld %ld\n", Regs_v-lcl0, Regs_v1-glb0, Regs_x-lcl0, Regs_x1-glb0);
 #endif	COUNTING
 
 	if (!usermode) {
@@ -872,7 +872,7 @@ ret_call:;	/*  return here from message  */
 		    ||  bb&SPY_ME	/* user is spying it */
 		    ||  !IsaAtomic(f) && f->moreflgs != 0
 		    ) goto FAIL;	/* don't complain */
-		    Ignore sprintf(ErrorMess = OutBuf, "! %s/%d is undefined",
+		    Ignore sprint(ErrorMess = OutBuf, "! %s/%d is undefined",
 			f->atoffe->stofae, f->arityoffe);
 		    goto ERROR;
 		}
@@ -1250,7 +1250,7 @@ ret_back:;  /*  message returns here  */
 +----------------------------------------------------------------------*/
 
 message:
-	Ignore sprintf(OutBuf, "%c%c (%3ld) %2ld %s: ",
+	Ignore sprint(OutBuf, "%c%c (%3ld) %2ld %s: ",
 	    bb & SPY_ME ? '*' : ' ',		/* spy-point? */
 	    lev == sklev ? '>' : ' ',		/* return to skip? */
 	    (info>>LEVEL_WIDTH) & CALL_NUMBER,	/* sequential call number */
@@ -2228,7 +2228,7 @@ resumeread:
 		char *prompt = AtomP(rX->v1ofcf)->stofae;
 
 		if (brklev != 0) {
-		    Ignore sprintf(OutBuf, "[%d] %s", brklev, prompt);
+		    Ignore sprint(OutBuf, "[%d] %s", brklev, prompt);
 		    prompt = OutBuf;
 		}
 		PromptIfUser(prompt);
@@ -2467,7 +2467,7 @@ resumeread:
 		&& unifyarg(Addr(rX->v3ofcf), ConsInt(MouseButtons&7), NULL));
 
 	default:
-	    Ignore sprintf(ErrorMess = OutBuf,
+	    Ignore sprint(ErrorMess = OutBuf,
 		"\n! Undefined built-in predicate : %d\n", PredNo);
 	    goto ERROR;
 	}

@@ -18,7 +18,7 @@
 
 void ProPrintAtom(char *a_buf, ATOMP a_atom) {
 	if(a_atom->atofae==a_atom) {
-		sprintf(a_buf, "%s", a_atom->stofae);
+		sprint(a_buf, "%s", a_atom->stofae);
 	} else {
 		ProPrintAtom(a_buf, a_atom->atofae);
 	}
@@ -28,7 +28,7 @@ void ProPrintAtom(char *a_buf, ATOMP a_atom) {
 void ProPrintFunctor(char *a_buf, FUNCTORP a_functor) {
 	char v_buf[2000];
 	ProPrintAtom(v_buf, a_functor->atoffe);
-	sprintf(a_buf, "%s", v_buf);
+	sprint(a_buf, "%s", v_buf);
 }
 
 void ProPrintObj(char *a_buf, PTR a_obj, PTR v1t, PTR vt, char a_adr) {
@@ -37,10 +37,10 @@ void ProPrintObj(char *a_buf, PTR a_obj, PTR v1t, PTR vt, char a_adr) {
 	if(IsaVar(v_par)) {
 		if(a_adr=='A') {
 			if(Signed(v_par) >= LCLVAR0) {
-				sprintf(a_buf, "%s%d", "L", (Unsigned(v_par)&ProVarNumberMask)/4);
+				sprint(a_buf, "%s%d", "L", (Unsigned(v_par)&ProVarNumberMask)/4);
 				return;
 			} else {
-				sprintf(a_buf, "%s%d", "G", (Unsigned(v_par)&ProVarNumberMask)/8);
+				sprint(a_buf, "%s%d", "G", (Unsigned(v_par)&ProVarNumberMask)/8);
 				return;
 			}
 		}
@@ -67,7 +67,7 @@ void ProPrintObj(char *a_buf, PTR a_obj, PTR v1t, PTR vt, char a_adr) {
 		return;
 	}
 	if(IsaAtomic(v_par)) {
-		sprintf(a_buf, "%s", ((char*) AtomP(v_par)->stofae));
+		sprint(a_buf, "%s", ((char*) AtomP(v_par)->stofae));
 		return;
 	}
 	if(IsaVar(v_par)) {
@@ -85,10 +85,10 @@ void ProPrintObjList(char *a_buf, PTR a_obj, PTR v1t, PTR vt, SKELP a_list, char
 	if(IsaVar(v_par)) {
 		if(a_adr=='A') {
 			if(Signed(v_par) >= LCLVAR0) {
-				sprintf(a_buf, "%s%d", "L", (Unsigned(v_par)&ProVarNumberMask)/8);
+				sprint(a_buf, "%s%d", "L", (Unsigned(v_par)&ProVarNumberMask)/8);
 				return;
 			} else {
-				sprintf(a_buf, "%s%d", "G", (Unsigned(v_par)&ProVarNumberMask)/8);
+				sprint(a_buf, "%s%d", "G", (Unsigned(v_par)&ProVarNumberMask)/8);
 				return;
 			}
 		}
@@ -116,7 +116,7 @@ void ProPrintObjList(char *a_buf, PTR a_obj, PTR v1t, PTR vt, SKELP a_list, char
 		return;
 	}
 	if(IsaAtomic(v_par)) {
-		sprintf(a_buf, "%s", ((char*) AtomP(v_par)->stofae));
+		sprint(a_buf, "%s", ((char*) AtomP(v_par)->stofae));
 		return;
 	}
 	if(IsaVar(v_par)) {
@@ -161,8 +161,8 @@ void ProPrintSkel(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, char a_adr) {
 		if(is_first) { is_first=0; } else { strcat(v_pars, ","); };
 		strcat(v_pars, v_p);
 	}
-	if(a_skel->Fn==listfunc) sprintf(a_buf, "[%s]", v_pars);
-	else sprintf(a_buf, "%s(%s)", v_buf, v_pars);
+	if(a_skel->Fn==listfunc) sprint(a_buf, "[%s]", v_pars);
+	else sprint(a_buf, "%s(%s)", v_buf, v_pars);
 }
 
 void ProPrintSkelList(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, SKELP a_list, char a_adr) {
@@ -201,8 +201,8 @@ void ProPrintSkelList(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, SKELP a_list, 
 		if(is_first) { is_first=0; } else { strcat(v_pars, ","); };
 		strcat(v_pars, v_p);
 	}
-	if(a_skel->Fn==listfunc) sprintf(a_buf, "%s", v_pars);
-	else sprintf(a_buf, "%s(%s)", v_buf, v_pars);
+	if(a_skel->Fn==listfunc) sprint(a_buf, "%s", v_pars);
+	else sprint(a_buf, "%s(%s)", v_buf, v_pars);
 }
 
 
@@ -228,7 +228,7 @@ void ProPrintClause(char *a_buf, CLAUSEP a_clause, PTR v1t, PTR vt, char a_adr) 
 		if(is_first) { is_first=0; } else { strcat(v_pars, ","); };
 		strcat(v_pars, v_p);
 	}
-	sprintf(a_buf, "%s(%s)", ((char*) SkelFuncP(v_head)->atoffe->stofae), v_pars);
+	sprint(a_buf, "%s(%s)", ((char*) SkelFuncP(v_head)->atoffe->stofae), v_pars);
 }
 
 void ProShowSkel(SKELP a_skel, PTR v1t, PTR vt, char a_adr) {
