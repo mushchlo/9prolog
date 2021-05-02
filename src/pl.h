@@ -16,8 +16,8 @@
 *									*
 ************************************************************************/
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <u.h>
+#include <libc.h>
 #include <stdint.h>
 
 //#define COUNTING 1

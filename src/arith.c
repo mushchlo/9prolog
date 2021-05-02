@@ -17,6 +17,8 @@
 
 /* Evaluate arithmetic expressions */
 
+#include <u.h>
+#include <libc.h>
 #include "pl.h"
 #include "arith.h"
 #include <math.h>

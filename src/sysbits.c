@@ -70,6 +70,8 @@
 |									|
 +----------------------------------------------------------------------*/
 
+#include <u.h>
+#include <libc.h>
 #include <errno.h>
 #include <signal.h>
 #include <string.h>

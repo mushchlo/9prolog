@@ -15,6 +15,8 @@
 *									*
 ************************************************************************/
 
+#include <u.h>
+#include <libc.h>
 #include "pl.h"
 
 /*  Unify term ta (with global frame ga and local frame V)
