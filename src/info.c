@@ -31,7 +31,7 @@ void ProPrintFunctor(char *a_buf, FUNCTORP a_functor) {
 }
 
 void ProPrintObj(char *a_buf, PTR a_obj, PTR v1t, PTR vt, char a_adr) {
-	PTR p_var = NULL;
+	PTR p_var = nil;
 	PTR v_par = a_obj;
 	if(IsaVar(v_par)) {
 		if(a_adr=='A') {

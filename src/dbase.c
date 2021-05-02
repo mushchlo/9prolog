@@ -457,7 +457,7 @@ errorexit:	freeskel(head);
 	    Safe();
 	    // -- cprolog.com -- debug
 		//if(ProCheckClauseTry(clause, "$directive")) {
-		//	ProShowClause(clause, NULL, NULL, 'A');
+		//	ProShowClause(clause, nil, nil, 'A');
 		//}
 	    // -- cprolog.com -- debug
 	    return ConsDBRef(clause, key);

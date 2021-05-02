@@ -852,7 +852,7 @@ void CreateStacks()
 	register ProLong i, s;
 
 	for (i = NAreas, s = 0; --i >= 0; s += Size[i]) ;
-    if ((r = malloc(s)) == NULL) {
+    if ((r = malloc(s)) == nil) {
 	    perror("Prolog");
 	    exit(1);
     }

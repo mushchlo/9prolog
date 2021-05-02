@@ -325,7 +325,7 @@ void save()	/*  save current prolog state */
     means  old  boundaries.   It  turns  out that IsVar works as well.
     WasPtr means that the thing needs relocating; it is not quite  the
     same  thing  as  !IsPrim because on non-BACKWARDS machines we have
-    !IsPrim(NULL) but nevertheless it should *not* be relocated!
+    !IsPrim(nil) but nevertheless it should *not* be relocated!
 
     If C Prolog were a tagged system, or even if we could recognise an
     empty block, a functor block, a clause block, or a term by looking
@@ -2461,9 +2461,9 @@ resumeread:
 		goto EXIT;
 
 	case _mouse_:		/* mouse(X,Y,B)	*/
-		TRY(unifyarg(Addr(rX->v1ofcf), ConsInt(MouseX), NULL)
-		&& unifyarg(Addr(rX->v2ofcf), ConsInt(MouseY), NULL)
-		&& unifyarg(Addr(rX->v3ofcf), ConsInt(MouseButtons&7), NULL));
+		TRY(unifyarg(Addr(rX->v1ofcf), ConsInt(MouseX), nil)
+		&& unifyarg(Addr(rX->v2ofcf), ConsInt(MouseY), nil)
+		&& unifyarg(Addr(rX->v3ofcf), ConsInt(MouseButtons&7), nil));
 
 	default:
 	    Ignore sprint(ErrorMess = OutBuf,
