@@ -15,8 +15,6 @@
 *									*
 ************************************************************************/
 
-#include <u.h>
-#include <libc.h>
 #include "pl.h"
 
 /* Declaration and properties of work areas */

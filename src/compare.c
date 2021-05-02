@@ -39,8 +39,6 @@
 |									|
 +----------------------------------------------------------------------*/
 
-#include <u.h>
-#include <libc.h>
 #include "pl.h"
 
 #define code(t)	(IsRef(t) ? -3 : !IsPrim(t) ? SkelFuncP(t)->arityoffe \
