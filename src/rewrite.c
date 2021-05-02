@@ -436,7 +436,6 @@ void ProPWrite(term, frame, priority)
 /* Token types */
 enum { FULLSTOP, NAME, PRIMITIVE, VAR, STRING, PUNCTUATION };
 
-#include <setjmp.h>
 	jmp_buf	ReadHandler;	/* for errors */
 	int	tokentype;	/* class FULLSTOP &c of latest token */
 	int	retoken;	/* true => re-scan this token */

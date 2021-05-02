@@ -16,7 +16,6 @@
 ************************************************************************/
 
 #include <string.h>
-#include <setjmp.h>
 #include <stdlib.h>
 #include "pl.h"
 #include "evalp.h"

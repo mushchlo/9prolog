@@ -71,7 +71,6 @@
 +----------------------------------------------------------------------*/
 
 #include <errno.h>
-#include <setjmp.h>
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
