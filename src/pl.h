@@ -520,8 +520,8 @@ extern PTR ConsFloat();
     been done in 1.4.sri.  They are only used in auxfn.c and dbase.c.
 */
 
-#define	Unsafe(z)	crit=1
-#define Safe(z)		if (crit==2) crit=0,Event(ABORT); crit=0
+#define	Unsafe()	crit=1
+#define Safe()		if (crit==2) crit=0,Event(ABORT); crit=0
 
 /*  The hash table is fairly crude.  A  very  simple  hash  function  is
     calculated,  and used to index an array of lists of atoms.  HashSize
