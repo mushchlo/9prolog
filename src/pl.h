@@ -54,6 +54,11 @@ typedef uvlong ProUInt;
 typedef vlong ProLong;
 typedef uvlong ProULong;
 
+typedef struct Value {
+	union {ProLong asInt; double asFloat;} val;
+	char Float;
+} Value;
+
 typedef uvlong **PTR;	/* anonymous pointers */
 typedef uchar byte;	/* used for small counts */
 

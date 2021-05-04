@@ -122,42 +122,9 @@ ffail (void)
 	NEVER			/*   15     2    SPARE */
     };
 
-
-/*  A Value is either a long integer or a double precision  float.   The
-    old  declaration was struct { union {long,double}, char }, and these
-    structures used to be returned from functions.  But some C compilers
-    do not support structure returning or even structure assignment.  If
-    yours is such a compiler, you will need to define  NO_STRUCT_ASSIGN.
-    That  copies  fields  across.   But we have no guarantee that double
-    x,y; x = y; will move y to x with no  change  of  bit  pattern.   We
-    could  use  strncpy(),  but that would be silly.  So we have to copy
-    the fields separately.  Mind you, with such an archaic compiler  you
-    may have to use someone else's "cpp"...
-*/
-#ifdef	NO_STRUCT_ASSIGN
-
-typedef struct Value
-    {
-	double AsFloat;
-	ProLong AsInt;
-	char Float;
-    }	Value;
-
-#define	CopyValue(x,y) x.AsFloat=y.AsFloat,x.AsInt=y.AsInt,x.Float=y.Float
-
-#else
-
-typedef struct Value
-    {
-	union {ProLong asInt; double asFloat;} val;
-	char Float;
-    } Value;
-
 #define	AsInt	val.asInt
 #define AsFloat	val.asFloat
 #define	CopyValue(x,y) x=y
-
-#endif	NO_STRUCT_ASSIGN
 
 Value reg;			/* the value "register" */
 
