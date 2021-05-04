@@ -806,7 +806,7 @@ extern int
 void ArithError(char *s);
 void NotInt(FUNCTORP fn);
 void NotOp(FUNCTORP fn);
-double ffail(void);
+double ffail(double d);
 int Narrow(double f, ProLong *i);
 int ForceInt(register Value *val);
 void eval(register PTR t, PTR frame);
@@ -918,7 +918,7 @@ void TakeSignal(int s);
 void CatchSignals(void);
 void SyntErrPos(void);
 char *CopyPrefix(register char *from, register char *to);
-char *expand_file(register char *Fancy);
+char *expandfile(register char *Fancy);
 void InitIO(void);
 int ProMessage(const char *fmt, ...);
 int ProError(const char *fmt, ...);

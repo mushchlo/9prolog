@@ -19,8 +19,6 @@
 
 #include "pl.h"
 #include "arith.h"
-#include <math.h>
-#include <errno.h>
 
 enum { NEVER, SOMETIMES, ALWAYS };
 
@@ -57,14 +55,16 @@ NotOp (FUNCTORP fn)
 
 
  double 
-ffail (void)
+ffail (double d)
  {
+	USED(d);
+
 	ArithError("internal error - undefined operator");
 	return 0.0;
  }
 
 
- double (*UFloat[])() =
+ double (*UFloat[])(double) =
     {
 	ffail,
 	ffail,
