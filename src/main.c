@@ -15,7 +15,6 @@
 *									*
 ************************************************************************/
 
-#include <string.h>
 #include "pl.h"
 #include "evalp.h"
 #include "arith.h"

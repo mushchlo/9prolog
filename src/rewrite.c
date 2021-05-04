@@ -15,7 +15,6 @@
 *									*
 ************************************************************************/
 
-#include <string.h>
 #include "pl.h"
 
 enum { PREFIX, INFIX, POSTFIX };

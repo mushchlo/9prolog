@@ -9,7 +9,6 @@
 *  Copyright (C) 2020 cprolog.com	*
 *									*
 ************************************************************************/
-#include <string.h>
 #include "pl.h"
 #include "evalp.h"
 #include "arith.h"
