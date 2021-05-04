@@ -18,7 +18,7 @@
 #include <string.h>
 #include "pl.h"
 
-#if	COUNTING
+#ifdef COUNTING
 	ProLong funcspace;
 	int  funccount, atomcount;
 #endif	COUNTING
@@ -80,7 +80,7 @@ lookup (char *id)
 	    *ptr = atm;
 	    atomfp += size;
 	    Safe();
-#if	COUNTING
+#ifdef COUNTING
 	    atomcount++;
 #endif	COUNTING
 	    return atm;
@@ -117,7 +117,7 @@ fentry (ATOMP atom, int arity)
 	Unsafe();
 	old->nxtoffe = new;	/* put new in the chain */
 	Safe();
-#if	COUNTING
+#ifdef COUNTING
 	funcspace += szoffe+arity, funccount++;
 #endif	COUNTING
 	return new;
@@ -279,7 +279,7 @@ Statistics (void)
 	    ProError("%-13s: %3ldK (%6ld bytes used)\n",
 		AreaName[area], Size[area]/1024, used*sizeof(PTR));
 	}
-#if	COUNTING
+#ifdef COUNTING
 	ProError("%d functor blocks occupy %ld words.\n", funccount, funcspace);
 	ProError("%d atom blocks occupy %ld words.\n", funccount, atomfp-atom0);
 #endif	COUNTING

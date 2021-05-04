@@ -41,7 +41,7 @@ PTR Limit[NAreas];	/*  Each area ends a little before the next begins  */
 #define	LclSz	128*MULTIPL*K	/*  Size of the local stack  */
 
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 
 char *AreaName[NAreas] =
     {

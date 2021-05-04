@@ -18,7 +18,7 @@
 
 #include "pl.h"
 
-#if	ERRCHECK
+#ifdef ERRCHECK
  int ReleaseCheck = 1;
  int clock = 0;
 #endif	ERRCHECK
@@ -68,7 +68,7 @@ InitHeap (void)
     }
 
 
-#if	ERRCHECK
+#ifdef ERRCHECK
 
 enum { NOOVERLAP, SAME, OVERLAP };
 
@@ -96,7 +96,7 @@ release (PTR Base, register int size)
 	register BlockP base = (BlockP)Base;
 	register BlockP *list;
 
-#if	ERRCHECK
+#ifdef ERRCHECK
 	ProMessage("%lx\t%d\t%ld\trelease\n", base, ++clock, size);
 	fflush(stdout);
 	if (ReleaseCheck) {
@@ -137,7 +137,7 @@ CollectGarbage (void)
 	register BlockP c, q;
 
 	if ((Top-Bottom)%BUCKET_SIZE != 0) Buckets++;
-#if	ERRCHECK
+#ifdef ERRCHECK
 	ProMessage("CollectGarbage %lx[%d]%lx\n", Bottom,Buckets,Top);
 	fflush(stdout);
 #endif	ERRCHECK
@@ -194,7 +194,7 @@ CollectGarbage (void)
 	/* Release all items on the merged, sorted list Garbage */
 
 	{
-#if	ERRCHECK
+#ifdef ERRCHECK
 	    int t = ReleaseCheck;
 
 	    ReleaseCheck = FALSE;	/* may need to remove this for tough bugs */
@@ -209,7 +209,7 @@ CollectGarbage (void)
 		release((PTR)q, q->BlockSize);
 		q = c;
 	    }
-#if	ERRCHECK
+#ifdef ERRCHECK
 	    ReleaseCheck = t;
 #endif	ERRCHECK
 	}
@@ -291,7 +291,7 @@ getsp (register int size)
 	}
 	NoSpace(HeapId);
 found:
-#if	ERRCHECK
+#ifdef ERRCHECK
 	ProMessage("%lx\t%d\t%ld\tgetsp\n", result, ++clock, size);
 	fflush(stdout);
 	if (Unsigned(result) & 3) {
@@ -340,7 +340,7 @@ HeapTop (void)
     }
 
 
-#if 0
+#ifdef NOTDEFINED
 	This package is based on a CMU thesis, and contains nothing that
 	really deserves a copyright  notice.   The  rest  of  this  file
 	contains code that C-Prolog either never used or used to use but
@@ -388,7 +388,7 @@ free (PTR ptr)
 int 
 ClearMem (PTR *loc, ProLong num)
     {
-#if	ASM
+#ifdef ASM
 	asm(" ashl $2,8(ap),r0 ");
 	asm(" movc5 $0,*4(ap),$0,r0,*4(ap) ");
 #else	ASM
@@ -403,7 +403,7 @@ ClearMem (PTR *loc, ProLong num)
 int 
 CopyMem (char *from, char *to, ProLong num)
     {
-#if	ASM
+#ifdef ASM
 	asm(" movc3 12(ap),*4(ap),*8(ap) ");
 #else	ASM
 	register char *f = from, *t = to;
@@ -439,5 +439,5 @@ realloc (register PTR ptr, unsigned ProLong size)
 	return (char *)ptr;
     }
 
-#endif	0
+#endif	NOTDEFINED
 

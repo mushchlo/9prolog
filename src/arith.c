@@ -134,7 +134,7 @@ ffail (void)
     the fields separately.  Mind you, with such an archaic compiler  you
     may have to use someone else's "cpp"...
 */
-#if	NO_STRUCT_ASSIGN
+#ifdef	NO_STRUCT_ASSIGN
 
 typedef struct Value
     {
@@ -145,7 +145,7 @@ typedef struct Value
 
 #define	CopyValue(x,y) x.AsFloat=y.AsFloat,x.AsInt=y.AsInt,x.Float=y.Float
 
-#else  !NO_STRUCT_ASSIGN
+#else
 
 typedef struct Value
     {

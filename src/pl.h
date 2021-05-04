@@ -28,13 +28,7 @@
 #define TRUE	1
 #define FALSE	0
 
-#if	perq	
-#   define PIPER 1		/* I'm not sure why this was thought necessary */
-#   define void	int		/* why in the name of sanity did ICL forget void? */
-#   define Ignore
-#else  !perq
-#   define Ignore (void)	/* make Lint shut up */
-#endif	perq
+#define Ignore (void)	/* make Lint shut up */
 
 /* the representable integers are in the interval [MinInt,MaxInt] */
 
@@ -221,21 +215,17 @@ typedef	struct	SKEL		*SKELP;
     heap0 is in a register either way, for XtraDB and ConsaDB.  Lucky!
 */
 
-#if	vax | orion
-#   define USEREGS 1
-#endif
-
-#if	!USEREGS
+#ifndef	USEREGS
 #   define	atomREG atom0
 #   define	heapREG	heap0
 #   define	glbREG  glb0
 #   define	DeclRegisters
 #   define	InitRegisters
 #else	USEREGS
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define	DeclRegisters	register PTR heapREG, atomREG;
 #   define	InitRegisters	heapREG = heap0, atomREG = atom0;
-#else  !BACKWARDS
+#else
 #   define	DeclRegisters	register PTR glbREG, heapREG;
 #   define	InitRegisters	glbREG = glb0, heapREG = heap0;
 #endif	BACKWARDS
@@ -253,7 +243,7 @@ typedef	struct	SKEL		*SKELP;
 |									|
 +----------------------------------------------------------------------*/
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define IsRef(c)	SC(c,<,heap0)	/* Prolog variable */
 #   define IsaRef(c)	SC(c,<,heapREG)
 #else  !BACKWARDS
@@ -323,7 +313,7 @@ typedef	struct	SKEL		*SKELP;
 |									|
 +----------------------------------------------------------------------*/
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define GLOVAR0	0x80000000	/* Offset for global variables */
 #   define LCLVAR0	0x80010000	/* Offset for local  variables */
 #   define IsVar(c)	(Signed(c) < 0x80020000)
@@ -385,7 +375,7 @@ typedef	struct	SKEL		*SKELP;
 |									|
 +----------------------------------------------------------------------*/
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define IsPrim(c)	SC(c,>=,0)	/* number or db reference */
 #   define IsAtomic(c)	SC(c,>=,atom0)	/* atomic term */
 #   define IsaAtomic(c)	SC(c,>=,atomREG)
@@ -421,7 +411,7 @@ typedef	struct	SKEL		*SKELP;
 	#define INT1		0xf0000000	/* combines INT0 and SIGN */
 #endif
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define IsInt(c)	UM(c,INT0,0)
 #   define IsPosInt(c)	UM(c,INT1,0)
 #   define IsByteInt(c) UM(c,~255,0)
@@ -454,7 +444,7 @@ typedef	struct	SKEL		*SKELP;
 |									|
 +----------------------------------------------------------------------*/
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define FRM0		0x00000000	/* tag for frame information word */
 #   define FLT0		0x20000000	/* floating-point tag */
 #else  !BACKWARDS
@@ -494,14 +484,13 @@ extern PTR ConsFloat();
 |									|
 +----------------------------------------------------------------------*/
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define IsDBRef(c)	SC(c,>=,REF0)	/* clause or record pointer */
 #   define REF0		0x40000000	/* origin of data base references */
 #	define RECORD		0x20000000	/* reference to a record */
 #	define CLAUSE		0L		/* reference to a clause (clear) */
 #else  !BACKWARDS
 #   define IsDBRef(c)	SC(c,<,FLT0)	/* clause or record pointer */
-
 #ifdef PRO_X64
 	#define REF0		0x8000000000000000	/* origin of data base references */
 	#define RECORD		0x2000000000000000	/* reference to a record */
@@ -708,7 +697,7 @@ enum { STDIN, STDOUT, STDERR };
 
 /* Indices of areas */
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 
 enum { AuxId, TrailId, GlobalId, LocalId, HeapId, AtomId };
 

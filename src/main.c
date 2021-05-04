@@ -81,7 +81,7 @@ PTR	Regs_tr;		/* top of trail */
  int carith = 0;	/* are arithmetic goals to be "compiled"? */
  int bb;		/* flags of current predicate */
 
-#if	COUNTING	/* recording stack excursion */
+#ifdef COUNTING	/* recording stack excursion */
 #define	NEXT_PORT	4
 	double	totloc, totglo, tottr;
 	ProLong	maxloc, maxglo, maxtr;
@@ -143,7 +143,7 @@ enum { CALL_PORT, EXIT_PORT, BACK_PORT, FAIL_PORT };
     };
 
 
-#if	debugging
+#ifdef	debugging
  void 
 DumpVars (char *message)
 {
@@ -343,14 +343,14 @@ save (void)	/*  save current prolog state */
     faster, but it would be less portable.
 */
 
-#if	BACKWARDS
+#ifdef BACKWARDS
 #   define WasPtr(c)		SC(c,<,0)
 #   define WasAtomic(c)		SC(c,>=,Patom)
 #   define WasAux(c)		SC(c,<, Pglb)
 #   define WasTr(c)		SC(c,>=,Ptr)	/* &WasAux */
 #   define WasHeap(c)		SC(c,>=,Pheap)
 #   define WasLcl(c)		SC(c,>=,Plcl)	/* &!WasAux &!WasHeap */
-#else  !BACKWARDS
+#else
 #   define WasPtr(c)		SC(c,>=,Paux)
 #   define WasAtomic(c)		SC(c,<, Pheap)
 #   define WasAux(c)		SC(c,<, Patom)
@@ -598,14 +598,14 @@ Halt (
     int why		/* 0->eval pred, 1->debug, 2->interrupt */
 )
 {
-#if	COUNTING
+#ifdef COUNTING
 	int epno;
 	double r = 4.0/(double)smpcnt;
 #endif	COUNTING
 
 	LockChannels(2);
 	CloseFiles();
-#if	COUNTING
+#ifdef COUNTING
 	Ignore fclose(trace_file);
 	ProError("\nAssorted counts.\n");
 	ProError("Max Local + Global stack + Trail = %ld + %ld + %ld\n",
@@ -641,7 +641,7 @@ main (int ArgC, char *ArgV[])
 	int n, i;		/* scratch variables */
 	DeclRegisters		/* keep glb0, heap0 in registers */
 
-#if	COUNTING
+#ifdef COUNTING
 	trace_file = fopen("trace.txt", "wb");
 #endif	COUNTING
 	/* our first Prolog event will be a cold start */
@@ -836,7 +836,7 @@ CALL:
 	/*  atom or a molecule.  Skeletons arise from "continuations",	*/
 	/*  molecules from proper calls.  pg is at least nonprimitive.	*/
 
-#if	COUNTING
+#ifdef COUNTING
 	portct[CALL_PORT]++;
 	fprint(trace_file, "%ld %ld %ld %ld\n", Regs_v-lcl0, Regs_v1-glb0, Regs_x-lcl0, Regs_x1-glb0);
 #endif	COUNTING
@@ -912,17 +912,17 @@ ret_call:;	/*  return here from message  */
 +----------------------------------------------------------------------*/
 
 BACK:
-#if	COUNTING
+#ifdef COUNTING
 	portct[BACK_PORT]++;
 #endif	COUNTING
 
 	{
 	    PTR v1t = Regs_v1;		/* local copy of v1 (which changes) */
-#if	USEREGS
+#ifdef	USEREGS
 	    PTR vt  = v;		/* local copies of v, x, and x1 */
 	    PTR x1t = x1;		/* are made on the VAX and Orion */
 	    PTR xt  = x;		/* to use short fast addresses */
-#else	!USEREGS
+#else
 #define vt  Regs_v
 #define x1t Regs_x1
 #define xt  Regs_x
@@ -1069,7 +1069,7 @@ TryClause:
 	/*  If not, we proceed to FAIL.  This is "shallow backtracking". */
 
 TryNextClause:
-#if	COUNTING
+#ifdef COUNTING
 	portct[NEXT_PORT]++;
 #endif	COUNTING
 
@@ -1102,7 +1102,7 @@ TryNextClause:
 /*  rather faster, especially when exit follows exit as often happens. */
 
 EXIT:
-#if	COUNTING
+#ifdef COUNTING
 	{   register ProLong t;
 	    t = Regs_v  - lcl0; if (t > maxloc) maxloc = t; totloc += t;
 	    t = Regs_v1 - glb0; if (t > maxglo) maxglo = t; totglo += t;
@@ -1175,7 +1175,7 @@ cutfail:
 	if (Regs_VV >= Regs_X) Regs_VV = Regs_X->lcpofcf;
 
 FAIL:			/*  deep backtracking */
-#if	COUNTING
+#ifdef COUNTING
 	portct[FAIL_PORT]++;
 #endif	COUNTING
 
@@ -1300,11 +1300,11 @@ message:
 		}
 		spy = SPY_ME, sklev = info&LEVEL;
 		goto action;
-#if	_DEFINE_0
+#ifdef	_DEFINE_0
 	    case 'r':					/* retry */
 		spy = FALSE, sklev = NEVER_SKIP;
 		goto CALL;			
-#endif	0
+#endif	_DEFINE_0
 	    case 'f':					/* fail */
 	    	if (Regs_VV >= Regs_X) Regs_VV = Regs_X->lcpofcf;
 	    	spy = FALSE, sklev = NEVER_SKIP;
@@ -1509,11 +1509,11 @@ EvalPred:
 		register PTR tr_entry;
 		while (old_tr != CellP(Regs_tr)) {
 		    tr_entry = *old_tr++;
-#if	BACKWARDS
+#ifdef BACKWARDS
 		    if (!IsaRef(tr_entry) || tr_entry < vv1
 		    || tr_entry >= lcl0 && tr_entry < vv)
 			*new_tr++ = tr_entry;
-#else  ~BACKWARDS
+#else
 		    /* This is an optimised version of the test above */
 		    if (SC(tr_entry,<,Regs_vv1) || tr_entry >= lcl0 && tr_entry < Regs_vv)
 			*new_tr++ = tr_entry;
@@ -1557,7 +1557,7 @@ EvalPred:
 
 	case _break_:		/* $break(Goal) */
 	    {
-#if	_DEFINE_0
+#ifdef	_DEFINE_0
 		This is called in just three places in pl/init.  In each
 		place it is an atom or compound term, so there is no need
 		to check.  If you change C-Prolog so that that no longer
@@ -1571,7 +1571,7 @@ EvalPred:
 		    goto ERROR;
 		}
 		k = goal;
-#endif	0
+#endif	_DEFINE_0
 		k = arg(SkelP(g)->Arg1, Regs_x1);
 		brtn = 1; savevars(); pg = k;
 		dotrace = debug = spy = FALSE;

@@ -83,7 +83,7 @@
 #include <sys/times.h>
 #include <sys/stat.h>
 
-#if	FOLD
+#ifdef FOLD
 #define	TtyWidth	78
 	int	TtyLeft;
 #endif	FOLD
@@ -353,7 +353,7 @@ void InitIO()
 	    struct stat statbuf;
 	    IsaTty = fstat(0, &statbuf) || statbuf.st_dev == 0;
 	}
-#if	FOLD
+#ifdef FOLD
 	TtyLeft = TtyWidth;
 #endif	FOLD
 	IsaTty = TRUE;
@@ -581,7 +581,7 @@ Put (int c)
 	    fputc(c, stdout);
 	    fflush(stdout);
 /*
-#if	FOLD
+#ifdef FOLD
 	    if (NewLine) {
 		TtyLeft = TtyWidth;
 	    } else
@@ -664,7 +664,7 @@ Get (void)
 	} else
 	if (c == '\n') {
 	    if (Input == STDIN) {
-#if	FOLD
+#ifdef FOLD
 		TtyLeft = TtyWidth;
 #endif	FOLD
 		NewLine = TRUE;
@@ -685,7 +685,7 @@ ToEOL (void)
 	while (d != EOF && d != '\n') d = getchar();
 	if (d == EOF) clearerr(stdin);
 	NewLine = TRUE;
-#if	FOLD
+#ifdef FOLD
 	TtyLeft = TtyWidth;
 #endif	FOLD
 	return c;
@@ -704,7 +704,7 @@ CurLineNo (register ATOMP file)
  void 
 Interrupt (void)
     {
-#if FOLD
+#ifdef FOLD
 	if (TtyLeft != TtyWidth) {
 	    putc('\n', stdout);
 	    TtyLeft = TtyWidth, NewLine = TRUE;
@@ -874,7 +874,7 @@ CreateStacks (void)
     }
 	for (i = 0; i < NAreas; i++) Origin[i] = (PTR)r, r += Size[i];
 	Origin[NAreas] = (PTR)r;
-#if	BACKWARDS
+#ifdef BACKWARDS
 	auxmax	= tr0	-10;
 	trmax	= glb0	-10;
 	v1max	= lcl0	-500;
