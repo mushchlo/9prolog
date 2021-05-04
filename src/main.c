@@ -18,6 +18,7 @@
 #include "pl.h"
 #include "evalp.h"
 #include "arith.h"
+#include <stdio.h>
 
 #define TEST(c,s,f)	{if (c) goto s; else goto f;}
 #define TRY(c)		TEST(c,EXIT,FAIL)
@@ -249,6 +250,7 @@ void
 save (void)	/*  save current prolog state */
 {
 	FILE *fa;
+	char *args[3];
 	int ferr;
 #define Fwrite(var,sz,len,fl) Ignore fwrite(CharP(var),sz,len,fl)
 
@@ -294,7 +296,10 @@ save (void)	/*  save current prolog state */
 	    ErrorMess = SysError();
 	    Event(IO_ERROR);
 	}
-	chmod(AtomToFile(AtomP(Regs_X->v1ofcf)), 0755);
+	args[0] = "0755";
+	args[1] = AtomToFile(AtomP(Regs_X->v1ofcf));
+	args[2] = nil;
+	exec("chmod", args);
 	/* on 4.1 or 4.2, saved states are executable */
 }
 
@@ -2253,7 +2258,7 @@ resumeread:
 		    goto ERROR;
 		}
 		TRY(constarg(v2ofcf,
-		    (PTR)(lookup(expand_file(AtomP(p)->stofae))) ));
+		    (PTR)(lookup(expandfile(AtomP(p)->stofae))) ));
 	    }
 
 	case _exists_:		/* exists(File) */
