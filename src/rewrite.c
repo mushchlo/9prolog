@@ -16,6 +16,7 @@
 ************************************************************************/
 
 #include "pl.h"
+#include <stdio.h>
 
 enum { PREFIX, INFIX, POSTFIX };
 
