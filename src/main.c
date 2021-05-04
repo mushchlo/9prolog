@@ -619,7 +619,7 @@ Halt (
 		epno, instrct[epno], (epno&3)==3 ? '\n' : '\t');
 #endif	COUNTING
 	ProError("\n%% Prolog execution halted\n");
-	exit(why);
+	exits(nil);
 }
 
 /*----------------------------------------------------------------------+
@@ -632,7 +632,7 @@ Halt (
 +----------------------------------------------------------------------*/
 int 
 main (int ArgC, char *ArgV[])
-    {
+{
 	FUNCTORP f;		/* the functor of the current goal (CALL only) */
 	int PredNo;		/* index of evaluable predicate */
 	char *bn;		/* initial file name, then scratch */
@@ -702,7 +702,7 @@ aborting:
 	    	TRY(unifyarg(Addr(Regs_X->v2ofcf), ConsInt(1), (PTR)0));
 	    }
 	    ProError("%s\n", ErrorMess);
-	    exit(1);
+	    exits(nil);
 	}
 
 	ProError("%% Bootstrapping session. Initializing from file %s\n", bn);

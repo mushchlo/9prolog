@@ -164,7 +164,7 @@ crack (int argc, char **argv)
 	    if (which_file == NullS) which_file = BootFile;
 	    if (!Exists(which_file)) {
 		ProError("! Bootstrap file %s does not exist.\n", which_file);
-		exit(1);
+		exits("Bootstrap file not found");
 	    }
 	} else {
 	    State[QUIET] = TRUE;
@@ -181,7 +181,7 @@ crack (int argc, char **argv)
 	    	sprint(OutBuf, SavedFmt, which_file);
 	    	if (*which_file == '/' || !Exists(OutBuf)) {
 	    		ProError("! Saved state %s does not exist.\n", which_file);
-	    		exit(1);
+	    		exits("Saved state not found");
 	    	}
 	    	which_file = OutBuf;
 	    }

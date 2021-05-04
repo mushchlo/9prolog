@@ -839,7 +839,7 @@ CallShell (char *command)
 
 	/*  if we get here, the execl() call failed  */
 
-	    exit(1);
+	    exits("Failed to open shell");
 	}
 	{
 	    int (*oldsig)() = signal(SIGINT, SIG_IGN);
@@ -869,7 +869,7 @@ CreateStacks (void)
 	for (i = NAreas, s = 0; --i >= 0; s += Size[i]) ;
     if ((r = malloc(s)) == nil) {
 	    perror("Prolog");
-	    exit(1);
+	    exits("Malloc failed");
     }
 	for (i = 0; i < NAreas; i++) Origin[i] = (PTR)r, r += Size[i];
 	Origin[NAreas] = (PTR)r;
