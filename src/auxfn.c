@@ -17,6 +17,8 @@
 
 #include "pl.h"
 
+extern PTR atomfp;
+
 #ifdef COUNTING
 	ProLong funcspace;
 	int  funccount, atomcount;
