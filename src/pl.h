@@ -797,61 +797,160 @@ extern int
 
 /* public functions */
 
-extern double
-	CpuTime();
+/* arith.c */
+void ArithError(char *s);
+void NotInt(FUNCTORP fn);
+void NotOp(FUNCTORP fn);
+double ffail(void);
+int Narrow(double f, ProLong *i);
+int ForceInt(register Value *val);
+void eval(register PTR t, PTR frame);
+ProLong intval(PTR p);
+PTR numeval(PTR p);
+int numcompare(int op, PTR t1, PTR t2);
+PTR ConsFloat(double f);
+float XtrFloat(PTR p);
 
-extern ProLong
-	HeapUsed(), icompare(), intval();
+/* auxfn.c */
+ATOMP lookup(char *id);
+FUNCTORP fentry(ATOMP atom, int arity);
+PTR apply(ATOMP atom, register int arity, register PTR *args);
+PTR makelist(register ProLong n, register PTR *elements);
+int list_to_string(register PTR list, register char *s, int n);
+int clause_number(FRAMEP frame, PTR goal);
+void backtrace(void);
+void Statistics(void);
 
-extern int
-	CallShell(), ChDir(), CurLineNo(), Exists(), Get(),
-	GetChType(), Narrow(), NumberString(), SetChType(), ToEOL(),
-	clause_number(), erase(), erased(), gunify(),
-	instance(), numcompare(), unifyarg(), list_to_string(), op(), isop(),
-	ProMessage(const char *, ...), ProError(const char *, ...);
+/* compare.c */
+ProLong comp(register PTR T1, PTR E1, register PTR T2, PTR E2);
+ProLong icompare(void);
+ATOMP acompare(void);
+ATOMP kcompare(register PTR T1, PTR E1, register PTR T2, PTR E2, register int n);
 
-extern FUNCTORP
-	fentry();
+/* dbase.c */
+void dispose(register CLAUSEP clause);
+void freeskel(register PTR term);
+void unchain(PTR ref);
+void hide(PTR ref);
+int erased(PTR ref);
+int erase(register PTR ref);
+PTR termtoheap(register PTR t, PTR frame);
+PTR bodytoheap(register PTR t, PTR frame);
+void scan(PTR *c);
+void abolish(register FUNCTORP fn, int UserCall);
+PTR record(ProLong key, PTR t, PTR rk, ProInt aorz);
+PTR recorded(ProLong key);
+PTR globalise(register PTR t, ProInt bodyflg);
+int instance(PTR ref, PTR argp);
 
-extern ATOMP
-	Seeing(), Telling(),
-	lookup(), acompare(), kcompare();
-
-extern void
-	ArithError(), CSee(), CatchSignals(), CloseFiles(), CreateStacks(),
-	Event(), Flush(), Halt(), InitIO(), InitHeap(),
-	LockChannels(), NoSpace(),
-	PClose(), Prompt(), PromptIfUser(), Put(), PutString(),
-	RelocHeap(), Remove(), Rename(),
-	See(), Seen(), SetPlPrompt(), Statistics(), Stop(), SyntErrPos(),
-	Tell(), Told(),
-	abolish(), backtrace(), hide(), ProPWrite(), release();
-
-extern PTR
-	apply(), arg(), argv(), getsp(), makelist(),
-	numeval(), ProPRead(), record(), recorded(), vvalue();
-
-extern PTR
-    atomfp;
-
-extern const char *SysError();
-extern char
-	*AtomToFile(), *crack(), *num2chars();
-	/* UNIX functions: */
-//	*getenv(), *sprint(), *strcpy();
-
-// info
+/* info.c */
 void ProPrintAtom(char *a_buf, ATOMP a_atom);
 void ProPrintFunctor(char *a_buf, FUNCTORP a_functor);
-void ProPrintSkel(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, char a_adr);
-void ProPrintClause(char *a_buf, CLAUSEP a_clause, PTR v1t, PTR vt, char a_adr);
 void ProPrintObj(char *a_buf, PTR a_obj, PTR v1t, PTR vt, char a_adr);
 void ProPrintObjList(char *a_buf, PTR a_obj, PTR v1t, PTR vt, SKELP a_list, char a_adr);
+void ProPrintSkel(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, char a_adr);
 void ProPrintSkelList(char *a_buf, SKELP a_skel, PTR v1t, PTR vt, SKELP a_list, char a_adr);
-
+void ProPrintClause(char *a_buf, CLAUSEP a_clause, PTR v1t, PTR vt, char a_adr);
 void ProShowSkel(SKELP a_skel, PTR v1t, PTR vt, char a_adr);
 void ProShowClause(CLAUSEP a_clause, PTR v1t, PTR vt, char a_adr);
 void ProCheckClause(CLAUSEP a_clause, PTR v1t, PTR vt, char *a_text);
 int ProCheckSkelTry(SKELP a_skel, const char *a_text);
 int ProCheckClauseTry(CLAUSEP a_clause, const char *a_text);
 
+/* main.c */
+void savev(register PTR *p, register int n);
+void restv(register PTR *p, register int n);
+void savevars(void);
+void restvars(void);
+void save(void);
+void remap(register PTR *tp);
+int restore(char *sfile);
+void ResetTrail(void);
+PTR bread(void);
+void Halt(int why);
+
+/* parms.c */
+int numval(char **q);
+int findch(register int c, register char *s);
+char *crack(int argc, char **argv);
+
+/* rewrite.c */
+int NumberString(char **s, PTR *p, int free);
+int GetChType(register int ch);
+int SetChType(register int ch, register int type);
+int isop(ATOMP atom, int optype, int *p, int *lp, int *rp);
+int maxprio(register ATOMP atom, register int priority);
+int op(PTR prio, PTR optype, register PTR spec);
+void PutAtom(ATOMP at);
+void spaceout(ATOMP a);
+char *num2chars(PTR k);
+void ProPWrite(register PTR term, PTR frame, register int priority);
+PTR lookupvar(char *id);
+void SyntaxError(void);
+int token(void);
+PTR readargs(ATOMP atom);
+PTR stringtolist(void);
+PTR readlist(void);
+int prefix_is_atom(int n, int m);
+PTR term(register int n);
+PTR ProPRead(PTR *names);
+
+/* space.c */
+void InitHeap(void);
+void release(PTR Base, register int size);
+void CollectGarbage(void);
+PTR getsp(register int size);
+void RelocHeap(register ProLong delta);
+ProLong HeapUsed(void);
+PTR HeapTop(void);
+
+/* sysbits.c */
+const char *SysError(void);
+void Stop(int dump);
+void Event(int n);
+void NoSpace(int s);
+void TakeSignal(int s);
+void CatchSignals(void);
+void SyntErrPos(void);
+char *CopyPrefix(register char *from, register char *to);
+char *expand_file(register char *Fancy);
+void InitIO(void);
+int ProMessage(const char *fmt, ...);
+int ProError(const char *fmt, ...);
+void LockChannels(int lock);
+void CClose(register int i);
+void PClose(ATOMP file);
+void CloseFiles(void);
+void Seen(void);
+void Told(void);
+ATOMP Seeing(void);
+ATOMP Telling(void);
+char *AtomToFile(register ATOMP file);
+int COpen(char *title, int mode);
+void CSee(char *title);
+void Flush(register PTR file);
+void See(register ATOMP file);
+void Tell(register ATOMP file, int append);
+void Put(int c);
+void PutString(register char *s);
+void SetPlPrompt(char *s);
+void Prompt(char *s);
+void PromptIfUser(char *s);
+int Get(void);
+int ToEOL(void);
+int CurLineNo(register ATOMP file);
+void Interrupt(void);
+int Exists(char *title);
+void Rename(char *oldname, char *newname);
+void Remove(char *title);
+int ChDir(char *newdir);
+int CallShell(char *command);
+void CreateStacks(void);
+double CpuTime(void);
+
+/* unify.c */
+ATOMP int gunify(PTR ta, PTR ga, PTR tb, PTR gb);
+int unifyarg(register PTR arg, register PTR term, PTR frame);
+PTR vvalue(register PTR var, PTR *framev);
+PTR arg(register PTR a, PTR frame);
+PTR argv(register PTR a, PTR frame, PTR *af);
