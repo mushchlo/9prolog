@@ -954,7 +954,7 @@ void CreateStacks(void);
 double CpuTime(void);
 
 /* unify.c */
-ATOMP int gunify(PTR ta, PTR ga, PTR tb, PTR gb);
+int gunify(PTR ta, PTR ga, PTR tb, PTR gb);
 int unifyarg(register PTR arg, register PTR term, PTR frame);
 PTR vvalue(register PTR var, PTR *framev);
 PTR arg(register PTR a, PTR frame);
