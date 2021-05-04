@@ -17,6 +17,7 @@
 
 /*  Internal code for the Nullary operators:				*/
 
+#undef PI
 enum { TIME = 1, HEAP, STACK, PI, LOG2 };
 
 /* STACK is new in 1.4b -- global stack in bytes */
